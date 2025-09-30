@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useAuthStore } from '@/store/authStore';
 import { UtensilsCrossed, Mail, Lock, User } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -17,6 +18,7 @@ const Register = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { register: registerUser } = useAuthStore();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,20 +35,10 @@ const Register = () => {
     setIsLoading(true);
     
     try {
-      // TODO: Implement actual registration with backend
-      setTimeout(() => {
-        toast({
-          title: "Account created!",
-          description: "Welcome to RestaurantOS. Please sign in.",
-        });
-        navigate('/login');
-      }, 1000);
+      await registerUser(formData.email, formData.password, formData.name);
+      navigate('/login');
     } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to create account. Please try again.",
-      });
+      // Error handling is done in the auth store
     } finally {
       setIsLoading(false);
     }

@@ -22,17 +22,9 @@ const Login = () => {
     
     try {
       await login(email, password);
-      toast({
-        title: "Welcome back!",
-        description: "You've successfully signed in.",
-      });
       navigate('/dashboard');
     } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Invalid credentials. Please try again.",
-      });
+      // Error handling is done in the auth store
     } finally {
       setIsLoading(false);
     }
