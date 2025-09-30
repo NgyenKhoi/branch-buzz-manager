@@ -23,6 +23,22 @@ interface AuthState {
   setUser: (user: User | null) => void;
 }
 
+// Mock storage helpers
+const STORAGE_KEY = 'mock_auth_user';
+
+const saveUser = (user: User | null) => {
+  if (user) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
+  } else {
+    localStorage.removeItem(STORAGE_KEY);
+  }
+};
+
+const loadUser = (): User | null => {
+  const stored = localStorage.getItem(STORAGE_KEY);
+  return stored ? JSON.parse(stored) : null;
+};
+
 // Simple in-memory session for mock auth
 let sessionUser: User | null = null;
 
@@ -37,13 +53,32 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   login: async (email: string, password: string) => {
     set({ isLoading: true });
-    const found = mockUsers.find(u => u.email === email && u.password === password);
-    if (found) {
-      const { password, ...user } = found;
-      sessionUser = user;
-      set({ user, isAuthenticated: true, isLoading: false });
-      toast({ title: 'Welcome back!', description: 'You have successfully logged in.' });
-    } else {
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) throw error;
+
+      if (data.user) {
+        set({
+          user: {
+            id: data.user.id,
+            email: data.user.email || '',
+            name: data.user.user_metadata?.name || 'User',
+            role: data.user.user_metadata?.role || 'customer',
+            avatar: data.user.user_metadata?.avatar,
+          },
+          isAuthenticated: true,
+          isLoading: false,
+        });
+        toast({
+          title: 'Welcome back!',
+          description: 'You have successfully logged in.',
+        });
+      }
+    } catch (error: any) {
       set({ isLoading: false });
       toast({
         variant: 'destructive',
@@ -56,8 +91,27 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   register: async (email: string, password: string, name: string) => {
     set({ isLoading: true });
-    const exists = mockUsers.some(u => u.email === email);
-    if (exists) {
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            name,
+            role: 'customer',
+          },
+        },
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: 'Registration successful!',
+        description: 'Please check your email to verify your account.',
+      });
+      
+      set({ isLoading: false });
+    } catch (error: any) {
       set({ isLoading: false });
       toast({
         variant: 'destructive',
@@ -83,16 +137,23 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   logout: async () => {
-    sessionUser = null;
-    set({ user: null, isAuthenticated: false });
-    toast({
-      title: 'Logged out',
-      description: 'You have been successfully logged out.',
-    });
+    try {
+      await supabase.auth.signOut();
+      set({ user: null, isAuthenticated: false });
+      toast({
+        title: 'Logged out',
+        description: 'You have been successfully logged out.',
+      });
+    } catch (error: any) {
+      toast({
+        variant: 'destructive',
+        title: 'Logout failed',
+        description: error.message,
+      });
+    }
   },
 
   setUser: (user) => {
-    sessionUser = user;
     set({ user, isAuthenticated: !!user });
   },
 }));
