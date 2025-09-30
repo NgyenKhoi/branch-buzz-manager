@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import { supabase } from '@/lib/supabase';
 import { toast } from '@/hooks/use-toast';
 
 export type UserRole = 'customer' | 'staff' | 'branch_manager' | 'owner' | 'admin';
@@ -23,6 +22,22 @@ interface AuthState {
   setUser: (user: User | null) => void;
 }
 
+// Mock storage helpers
+const STORAGE_KEY = 'mock_auth_user';
+
+const saveUser = (user: User | null) => {
+  if (user) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
+  } else {
+    localStorage.removeItem(STORAGE_KEY);
+  }
+};
+
+const loadUser = (): User | null => {
+  const stored = localStorage.getItem(STORAGE_KEY);
+  return stored ? JSON.parse(stored) : null;
+};
+
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   isAuthenticated: false,
@@ -30,41 +45,8 @@ export const useAuthStore = create<AuthState>((set) => ({
   
   initialize: async () => {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (session?.user) {
-        set({
-          user: {
-            id: session.user.id,
-            email: session.user.email || '',
-            name: session.user.user_metadata?.name || 'User',
-            role: session.user.user_metadata?.role || 'customer',
-            avatar: session.user.user_metadata?.avatar,
-          },
-          isAuthenticated: true,
-          isLoading: false,
-        });
-      } else {
-        set({ isLoading: false });
-      }
-
-      // Listen for auth changes
-      supabase.auth.onAuthStateChange((_event, session) => {
-        if (session?.user) {
-          set({
-            user: {
-              id: session.user.id,
-              email: session.user.email || '',
-              name: session.user.user_metadata?.name || 'User',
-              role: session.user.user_metadata?.role || 'customer',
-              avatar: session.user.user_metadata?.avatar,
-            },
-            isAuthenticated: true,
-          });
-        } else {
-          set({ user: null, isAuthenticated: false });
-        }
-      });
+      const user = loadUser();
+      set({ user, isAuthenticated: !!user, isLoading: false });
     } catch (error) {
       console.error('Auth initialization error:', error);
       set({ isLoading: false });
@@ -74,30 +56,25 @@ export const useAuthStore = create<AuthState>((set) => ({
   login: async (email: string, password: string) => {
     set({ isLoading: true });
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      // Mock login - accept any email/password
+      const user: User = {
+        id: Math.random().toString(36).substr(2, 9),
         email,
-        password,
+        name: email.split('@')[0],
+        role: 'owner',
+      };
+
+      saveUser(user);
+      set({
+        user,
+        isAuthenticated: true,
+        isLoading: false,
       });
-
-      if (error) throw error;
-
-      if (data.user) {
-        set({
-          user: {
-            id: data.user.id,
-            email: data.user.email || '',
-            name: data.user.user_metadata?.name || 'User',
-            role: data.user.user_metadata?.role || 'customer',
-            avatar: data.user.user_metadata?.avatar,
-          },
-          isAuthenticated: true,
-          isLoading: false,
-        });
-        toast({
-          title: 'Welcome back!',
-          description: 'You have successfully logged in.',
-        });
-      }
+      
+      toast({
+        title: 'Welcome back!',
+        description: 'You have successfully logged in.',
+      });
     } catch (error: any) {
       set({ isLoading: false });
       toast({
@@ -112,25 +89,25 @@ export const useAuthStore = create<AuthState>((set) => ({
   register: async (email: string, password: string, name: string) => {
     set({ isLoading: true });
     try {
-      const { data, error } = await supabase.auth.signUp({
+      // Mock registration
+      const user: User = {
+        id: Math.random().toString(36).substr(2, 9),
         email,
-        password,
-        options: {
-          data: {
-            name,
-            role: 'customer',
-          },
-        },
-      });
+        name,
+        role: 'owner',
+      };
 
-      if (error) throw error;
+      saveUser(user);
+      set({
+        user,
+        isAuthenticated: true,
+        isLoading: false,
+      });
 
       toast({
         title: 'Registration successful!',
-        description: 'Please check your email to verify your account.',
+        description: 'You can now access your dashboard.',
       });
-      
-      set({ isLoading: false });
     } catch (error: any) {
       set({ isLoading: false });
       toast({
@@ -144,7 +121,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   logout: async () => {
     try {
-      await supabase.auth.signOut();
+      saveUser(null);
       set({ user: null, isAuthenticated: false });
       toast({
         title: 'Logged out',
@@ -160,6 +137,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   setUser: (user) => {
+    saveUser(user);
     set({ user, isAuthenticated: !!user });
   },
 }));
