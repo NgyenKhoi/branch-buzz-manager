@@ -214,3 +214,31 @@ export const mockMembers = [
     joinDate: '2023-11-10',
   },
 ];
+
+// Add mock users for authentication
+export const mockUsers = [
+  {
+    id: '1',
+    email: 'customer@email.com',
+    password: 'password123',
+    name: 'Customer User',
+    role: 'customer',
+    avatar: undefined,
+  },
+  {
+    id: '2',
+    email: 'manager@email.com',
+    password: 'password123',
+    name: 'Manager User',
+    role: 'branch_manager',
+    avatar: undefined,
+  },
+  {
+    id: '3',
+    email: 'admin@email.com',
+    password: 'password123',
+    name: 'Admin User',
+    role: 'admin',
+    avatar: undefined,
+  },
+];
