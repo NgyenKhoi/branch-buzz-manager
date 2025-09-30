@@ -39,46 +39,36 @@ const loadUser = (): User | null => {
   return stored ? JSON.parse(stored) : null;
 };
 
-// Simple in-memory session for mock auth
-let sessionUser: User | null = null;
+let sessionUser: User | null = loadUser();
 
 export const useAuthStore = create<AuthState>((set) => ({
-  user: null,
-  isAuthenticated: false,
+  user: sessionUser,
+  isAuthenticated: !!sessionUser,
   isLoading: false,
 
   initialize: async () => {
+    sessionUser = loadUser();
     set({ isLoading: false, user: sessionUser, isAuthenticated: !!sessionUser });
   },
 
   login: async (email: string, password: string) => {
     set({ isLoading: true });
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) throw error;
-
-      if (data.user) {
-        set({
-          user: {
-            id: data.user.id,
-            email: data.user.email || '',
-            name: data.user.user_metadata?.name || 'User',
-            role: data.user.user_metadata?.role || 'customer',
-            avatar: data.user.user_metadata?.avatar,
-          },
-          isAuthenticated: true,
-          isLoading: false,
-        });
-        toast({
-          title: 'Welcome back!',
-          description: 'You have successfully logged in.',
-        });
-      }
-    } catch (error: any) {
+    // Find user and ensure role is UserRole
+    const found = mockUsers.find(u => u.email === email && u.password === password);
+    if (found) {
+      const { password, ...userRaw } = found;
+      const user: User = {
+        id: userRaw.id,
+        email: userRaw.email,
+        name: userRaw.name,
+        role: userRaw.role as UserRole,
+        avatar: userRaw.avatar,
+      };
+      sessionUser = user;
+      saveUser(user);
+      set({ user, isAuthenticated: true, isLoading: false });
+      toast({ title: 'Welcome back!', description: 'You have successfully logged in.' });
+    } else {
       set({ isLoading: false });
       toast({
         variant: 'destructive',
@@ -91,27 +81,8 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   register: async (email: string, password: string, name: string) => {
     set({ isLoading: true });
-    try {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            name,
-            role: 'customer',
-          },
-        },
-      });
-
-      if (error) throw error;
-
-      toast({
-        title: 'Registration successful!',
-        description: 'Please check your email to verify your account.',
-      });
-      
-      set({ isLoading: false });
-    } catch (error: any) {
+    const exists = mockUsers.some(u => u.email === email);
+    if (exists) {
       set({ isLoading: false });
       toast({
         variant: 'destructive',
@@ -120,16 +91,19 @@ export const useAuthStore = create<AuthState>((set) => ({
       });
       throw new Error('Email already registered');
     }
-    const newUser: User & { password: string } = {
+    const newUser = {
       id: (mockUsers.length + 1).toString(),
       email,
       name,
-      role: 'customer',
+      role: 'customer' as UserRole,
+      avatar: undefined,
       password,
     };
     mockUsers.push(newUser);
-    sessionUser = newUser;
-    set({ user: newUser, isAuthenticated: true, isLoading: false });
+    const { password: _pw, ...user } = newUser;
+    sessionUser = user;
+    saveUser(user);
+    set({ user, isAuthenticated: true, isLoading: false });
     toast({
       title: 'Registration successful!',
       description: 'You have been registered and logged in.',
@@ -137,23 +111,18 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   logout: async () => {
-    try {
-      await supabase.auth.signOut();
-      set({ user: null, isAuthenticated: false });
-      toast({
-        title: 'Logged out',
-        description: 'You have been successfully logged out.',
-      });
-    } catch (error: any) {
-      toast({
-        variant: 'destructive',
-        title: 'Logout failed',
-        description: error.message,
-      });
-    }
+    sessionUser = null;
+    saveUser(null);
+    set({ user: null, isAuthenticated: false });
+    toast({
+      title: 'Logged out',
+      description: 'You have been successfully logged out.',
+    });
   },
 
   setUser: (user) => {
+    sessionUser = user;
+    saveUser(user);
     set({ user, isAuthenticated: !!user });
   },
 }));
