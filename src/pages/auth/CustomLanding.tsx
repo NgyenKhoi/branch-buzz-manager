@@ -109,150 +109,208 @@ const CustomLanding = () => {
   };
 
   return (
-    <div className="min-h-screen bg-muted/30 py-12 px-4">
-      <div className="container max-w-4xl">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4">Customize Your Landing Page</h1>
-          <p className="text-lg text-muted-foreground">
-            Create a beautiful landing page for your restaurant brand
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background py-12 px-4">
+      <div className="container max-w-5xl">
+        <div className="text-center mb-12 space-y-4">
+          <div className="inline-block px-4 py-1.5 bg-primary/10 rounded-full mb-4">
+            <span className="text-sm font-medium text-primary">Step 2 of 2</span>
+          </div>
+          <h1 className="text-4xl md:text-5xl font-bold tracking-tight">Customize Your Brand</h1>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            Create a stunning landing page that represents your restaurant's unique identity
           </p>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          {/* Logo Upload */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Brand Logo</CardTitle>
-              <CardDescription>Upload your restaurant logo</CardDescription>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+          {/* Visual Assets Section */}
+          <Card className="border-2 overflow-hidden">
+            <CardHeader className="bg-muted/50">
+              <CardTitle className="flex items-center gap-2">
+                <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <Upload className="h-4 w-4 text-primary" />
+                </div>
+                Visual Identity
+              </CardTitle>
+              <CardDescription>Upload your logo and hero banner to make your page stand out</CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-4">
-                {logo ? (
-                  <div className="relative">
-                    <img src={logo} alt="Logo" className="w-32 h-32 object-cover rounded-lg border" />
-                    <button
-                      type="button"
-                      onClick={() => setLogo(null)}
-                      className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 hover:bg-destructive/90"
-                    >
-                      <X className="h-4 w-4" />
-                    </button>
+            <CardContent className="pt-6">
+              <div className="grid md:grid-cols-2 gap-6">
+                {/* Logo Upload */}
+                <div className="space-y-3">
+                  <Label className="text-sm font-medium">Brand Logo</Label>
+                  <div className="flex items-center justify-center">
+                    {logo ? (
+                      <div className="relative group">
+                        <img 
+                          src={logo} 
+                          alt="Logo" 
+                          className="w-40 h-40 object-cover rounded-2xl border-2 border-border shadow-lg" 
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setLogo(null)}
+                          className="absolute -top-3 -right-3 bg-destructive text-destructive-foreground rounded-full p-2 shadow-lg hover:scale-110 transition-transform"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ) : (
+                      <label className="w-40 h-40 flex flex-col items-center justify-center border-2 border-dashed border-border rounded-2xl cursor-pointer hover:border-primary hover:bg-primary/5 transition-all group">
+                        <Upload className="h-10 w-10 text-muted-foreground group-hover:text-primary transition-colors" />
+                        <span className="text-sm font-medium text-muted-foreground mt-3 group-hover:text-primary">Upload Logo</span>
+                        <span className="text-xs text-muted-foreground mt-1">PNG, JPG up to 5MB</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => handleImageUpload(e, setLogo)}
+                        />
+                      </label>
+                    )}
                   </div>
-                ) : (
-                  <label className="w-32 h-32 flex flex-col items-center justify-center border-2 border-dashed rounded-lg cursor-pointer hover:border-primary transition-smooth">
-                    <Upload className="h-8 w-8 text-muted-foreground" />
-                    <span className="text-sm text-muted-foreground mt-2">Upload</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={(e) => handleImageUpload(e, setLogo)}
-                    />
-                  </label>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+                </div>
 
-          {/* Banner Image */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Banner Image</CardTitle>
-              <CardDescription>Upload a hero banner for your landing page</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-4">
-                {bannerImage ? (
-                  <div className="relative w-full">
-                    <img src={bannerImage} alt="Banner" className="w-full h-48 object-cover rounded-lg border" />
-                    <button
-                      type="button"
-                      onClick={() => setBannerImage(null)}
-                      className="absolute top-2 right-2 bg-destructive text-destructive-foreground rounded-full p-1 hover:bg-destructive/90"
-                    >
-                      <X className="h-4 w-4" />
-                    </button>
+                {/* Banner Upload */}
+                <div className="space-y-3">
+                  <Label className="text-sm font-medium">Hero Banner</Label>
+                  <div className="flex items-center justify-center">
+                    {bannerImage ? (
+                      <div className="relative w-full group">
+                        <img 
+                          src={bannerImage} 
+                          alt="Banner" 
+                          className="w-full h-40 object-cover rounded-2xl border-2 border-border shadow-lg" 
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setBannerImage(null)}
+                          className="absolute top-2 right-2 bg-destructive text-destructive-foreground rounded-full p-2 shadow-lg hover:scale-110 transition-transform"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ) : (
+                      <label className="w-full h-40 flex flex-col items-center justify-center border-2 border-dashed border-border rounded-2xl cursor-pointer hover:border-primary hover:bg-primary/5 transition-all group">
+                        <Upload className="h-10 w-10 text-muted-foreground group-hover:text-primary transition-colors" />
+                        <span className="text-sm font-medium text-muted-foreground mt-3 group-hover:text-primary">Upload Banner</span>
+                        <span className="text-xs text-muted-foreground mt-1">Wide image, 1920x600 recommended</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => handleImageUpload(e, setBannerImage)}
+                        />
+                      </label>
+                    )}
                   </div>
-                ) : (
-                  <label className="w-full h-48 flex flex-col items-center justify-center border-2 border-dashed rounded-lg cursor-pointer hover:border-primary transition-smooth">
-                    <Upload className="h-8 w-8 text-muted-foreground" />
-                    <span className="text-sm text-muted-foreground mt-2">Upload Banner</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={(e) => handleImageUpload(e, setBannerImage)}
-                    />
-                  </label>
-                )}
+                </div>
               </div>
             </CardContent>
           </Card>
 
           {/* Brand Details */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Brand Information</CardTitle>
-              <CardDescription>Enter your restaurant brand details</CardDescription>
+          <Card className="border-2 overflow-hidden">
+            <CardHeader className="bg-muted/50">
+              <CardTitle>Brand Story</CardTitle>
+              <CardDescription>Tell your customers what makes you special</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="brandName">Brand Name</Label>
-                <Input {...register('brandName')} id="brandName" placeholder="Your Restaurant Name" />
-                {errors.brandName && <p className="text-sm text-destructive mt-1">{errors.brandName.message}</p>}
+            <CardContent className="pt-6 space-y-5">
+              <div className="space-y-2">
+                <Label htmlFor="brandName" className="text-sm font-medium">Restaurant Name *</Label>
+                <Input 
+                  {...register('brandName')} 
+                  id="brandName" 
+                  placeholder="e.g., Bella Italia, The Golden Spoon" 
+                  className="h-11"
+                />
+                {errors.brandName && <p className="text-sm text-destructive mt-1.5">{errors.brandName.message}</p>}
               </div>
 
-              <div>
-                <Label htmlFor="tagline">Tagline</Label>
-                <Input {...register('tagline')} id="tagline" placeholder="Your catchy tagline" />
-                {errors.tagline && <p className="text-sm text-destructive mt-1">{errors.tagline.message}</p>}
+              <div className="space-y-2">
+                <Label htmlFor="tagline" className="text-sm font-medium">Tagline</Label>
+                <Input 
+                  {...register('tagline')} 
+                  id="tagline" 
+                  placeholder="e.g., Where Every Meal is a Celebration" 
+                  className="h-11"
+                />
+                {errors.tagline && <p className="text-sm text-destructive mt-1.5">{errors.tagline.message}</p>}
               </div>
 
-              <div>
-                <Label htmlFor="description">Description</Label>
+              <div className="space-y-2">
+                <Label htmlFor="description" className="text-sm font-medium">Description *</Label>
                 <Textarea
                   {...register('description')}
                   id="description"
-                  placeholder="Tell customers about your restaurant"
+                  placeholder="Share your story, cuisine style, and what makes your restaurant unique..."
                   rows={4}
+                  className="resize-none"
                 />
-                {errors.description && <p className="text-sm text-destructive mt-1">{errors.description.message}</p>}
+                {errors.description && <p className="text-sm text-destructive mt-1.5">{errors.description.message}</p>}
               </div>
             </CardContent>
           </Card>
 
           {/* Contact Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Contact Information</CardTitle>
-              <CardDescription>How customers can reach you</CardDescription>
+          <Card className="border-2 overflow-hidden">
+            <CardHeader className="bg-muted/50">
+              <CardTitle>Contact Details</CardTitle>
+              <CardDescription>How guests can reach and find you</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid gap-4 md:grid-cols-2">
-                <div>
-                  <Label htmlFor="phone">Phone</Label>
-                  <Input {...register('phone')} id="phone" type="tel" placeholder="+1 (555) 123-4567" />
-                  {errors.phone && <p className="text-sm text-destructive mt-1">{errors.phone.message}</p>}
+            <CardContent className="pt-6 space-y-5">
+              <div className="grid gap-5 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="phone" className="text-sm font-medium">Phone Number *</Label>
+                  <Input 
+                    {...register('phone')} 
+                    id="phone" 
+                    type="tel" 
+                    placeholder="+1 (555) 123-4567" 
+                    className="h-11"
+                  />
+                  {errors.phone && <p className="text-sm text-destructive mt-1.5">{errors.phone.message}</p>}
                 </div>
 
-                <div>
-                  <Label htmlFor="email">Email</Label>
-                  <Input {...register('email')} id="email" type="email" placeholder="contact@restaurant.com" />
-                  {errors.email && <p className="text-sm text-destructive mt-1">{errors.email.message}</p>}
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-sm font-medium">Email Address *</Label>
+                  <Input 
+                    {...register('email')} 
+                    id="email" 
+                    type="email" 
+                    placeholder="contact@restaurant.com" 
+                    className="h-11"
+                  />
+                  {errors.email && <p className="text-sm text-destructive mt-1.5">{errors.email.message}</p>}
                 </div>
               </div>
 
-              <div>
-                <Label htmlFor="address">Address</Label>
-                <Input {...register('address')} id="address" placeholder="123 Main St, City, State, ZIP" />
-                {errors.address && <p className="text-sm text-destructive mt-1">{errors.address.message}</p>}
+              <div className="space-y-2">
+                <Label htmlFor="address" className="text-sm font-medium">Full Address *</Label>
+                <Input 
+                  {...register('address')} 
+                  id="address" 
+                  placeholder="123 Main Street, City, State, ZIP Code" 
+                  className="h-11"
+                />
+                {errors.address && <p className="text-sm text-destructive mt-1.5">{errors.address.message}</p>}
               </div>
             </CardContent>
           </Card>
 
-          <Button type="submit" size="lg" className="w-full">
-            Complete Setup & Go to Dashboard
-          </Button>
+          <div className="flex gap-4">
+            <Button 
+              type="button" 
+              variant="outline" 
+              size="lg" 
+              className="flex-1"
+              onClick={() => navigate('/setup/package')}
+            >
+              Back
+            </Button>
+            <Button type="submit" size="lg" className="flex-1 shadow-lg hover:shadow-xl transition-shadow">
+              Complete Setup & Launch Dashboard
+            </Button>
+          </div>
         </form>
       </div>
     </div>

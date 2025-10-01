@@ -13,7 +13,7 @@ import { toast } from '@/hooks/use-toast';
 const packageSchema = z.object({
   packageType: z.enum(['basic', 'pro', 'enterprise']),
   restaurantName: z.string().min(3, 'Restaurant name must be at least 3 characters'),
-  branches: z.string().min(1, 'Number of branches is required'),
+  branches: z.coerce.number().min(1, 'Must have at least 1 branch').max(100, 'Maximum 100 branches'),
 });
 
 type PackageFormData = z.infer<typeof packageSchema>;

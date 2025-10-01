@@ -11,6 +11,7 @@ import {
   DollarSign
 } from 'lucide-react';
 import { mockStaff, mockTables, mockPromotions, mockBranches } from '@/data/mockData';
+import { BookingNotification } from '@/components/BookingNotification';
 
 const ManagerDashboard = () => {
   const activeBranch = mockBranches[0];
@@ -19,11 +20,14 @@ const ManagerDashboard = () => {
   return (
     <DashboardLayout>
       <div className="space-y-8">
-        <div>
-          <h1 className="text-3xl font-bold">Manager Dashboard</h1>
-          <p className="text-muted-foreground mt-2">
-            {activeBranch.name} - Branch Operations
-          </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">Manager Dashboard</h1>
+            <p className="text-muted-foreground mt-2">
+              {activeBranch.name} - Branch Operations
+            </p>
+          </div>
+          <BookingNotification branchId={activeBranch.id} />
         </div>
 
         {/* Branch Stats */}

@@ -5,15 +5,17 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { branchApi, menuApi } from '@/lib/api';
-import { Phone, Mail, MapPin, Clock, ShoppingCart } from 'lucide-react';
+import { Phone, Mail, MapPin, Clock, ShoppingCart, Minus, Plus, Loader2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { BookingDialog } from '@/components/BookingDialog';
+import { BookingItem } from '@/store/bookingStore';
 
 const GuestLanding = () => {
   const { shortCode } = useParams<{ shortCode: string }>();
   const [branch, setBranch] = useState<any>(null);
   const [menuItems, setMenuItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedItems, setSelectedItems] = useState<any[]>([]);
+  const [selectedItems, setSelectedItems] = useState<BookingItem[]>([]);
 
   useEffect(() => {
     const loadBranchData = async () => {
@@ -44,17 +46,54 @@ const GuestLanding = () => {
   }, [shortCode]);
 
   const addToCart = (item: any) => {
-    setSelectedItems([...selectedItems, item]);
+    const existingItem = selectedItems.find((i) => i.menuItemId === item.id);
+    
+    if (existingItem) {
+      setSelectedItems(
+        selectedItems.map((i) =>
+          i.menuItemId === item.id ? { ...i, quantity: i.quantity + 1 } : i
+        )
+      );
+    } else {
+      setSelectedItems([
+        ...selectedItems,
+        {
+          menuItemId: item.id,
+          name: item.name,
+          quantity: 1,
+          price: item.price,
+        },
+      ]);
+    }
+
     toast({
-      title: 'Added to cart',
-      description: `${item.name} added to your order`,
+      title: 'Added to Cart',
+      description: `${item.name} added to your order.`,
     });
   };
+
+  const updateQuantity = (menuItemId: string, delta: number) => {
+    setSelectedItems((items) =>
+      items
+        .map((item) =>
+          item.menuItemId === menuItemId
+            ? { ...item, quantity: Math.max(0, item.quantity + delta) }
+            : item
+        )
+        .filter((item) => item.quantity > 0)
+    );
+  };
+
+  const getItemQuantity = (menuItemId: string) => {
+    return selectedItems.find((i) => i.menuItemId === menuItemId)?.quantity || 0;
+  };
+
+  const totalItems = selectedItems.reduce((sum, item) => sum + item.quantity, 0);
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
       </div>
     );
   }
@@ -78,6 +117,21 @@ const GuestLanding = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Floating Cart Button */}
+      {totalItems > 0 && (
+        <div className="fixed bottom-6 right-6 z-50">
+          <BookingDialog
+            branchId={branch.id}
+            branchName={branch.brandName || branch.name}
+            selectedItems={selectedItems}
+            onBookingComplete={() => setSelectedItems([])}
+          />
+          <div className="absolute -top-2 -right-2 bg-primary text-primary-foreground rounded-full h-7 w-7 flex items-center justify-center text-sm font-bold shadow-lg">
+            {totalItems}
+          </div>
+        </div>
+      )}
+
       {/* Hero Section */}
       <div 
         className="relative h-[400px] bg-gradient-subtle flex items-center justify-center"
@@ -146,12 +200,6 @@ const GuestLanding = () => {
               <h2 className="text-3xl font-bold">Our Menu</h2>
               <p className="text-muted-foreground mt-1">Browse our delicious offerings</p>
             </div>
-            {selectedItems.length > 0 && (
-              <Button size="lg" className="gap-2">
-                <ShoppingCart className="h-5 w-5" />
-                View Cart ({selectedItems.length})
-              </Button>
-            )}
           </div>
 
           {menuCategories.map(category => (
@@ -163,43 +211,71 @@ const GuestLanding = () => {
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {menuItems
                   .filter(item => item.category === category)
-                  .map(item => (
-                    <Card key={item.id} className="overflow-hidden hover:shadow-medium transition-smooth">
-                      <div className="aspect-video bg-muted relative">
-                        <img 
-                          src={item.imageUrl} 
-                          alt={item.name}
-                          className="w-full h-full object-cover"
-                        />
-                        {item.bestSeller && (
-                          <Badge className="absolute top-2 right-2">
-                            Best Seller
-                          </Badge>
-                        )}
-                        {!item.available && (
-                          <div className="absolute inset-0 bg-background/80 flex items-center justify-center">
-                            <Badge variant="destructive">Unavailable</Badge>
-                          </div>
-                        )}
-                      </div>
-                      <CardHeader>
-                        <CardTitle className="flex items-start justify-between">
-                          <span>{item.name}</span>
-                          <span className="text-primary">${item.price}</span>
-                        </CardTitle>
-                        <CardDescription>{item.description}</CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <Button 
-                          className="w-full" 
-                          onClick={() => addToCart(item)}
-                          disabled={!item.available}
-                        >
-                          Add to Order
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  ))}
+                  .map(item => {
+                    const itemQuantity = getItemQuantity(item.id);
+                    return (
+                      <Card key={item.id} className="overflow-hidden hover:shadow-medium transition-smooth">
+                        <div className="aspect-video bg-muted relative">
+                          <img 
+                            src={item.imageUrl} 
+                            alt={item.name}
+                            className="w-full h-full object-cover"
+                          />
+                          {item.bestSeller && (
+                            <Badge className="absolute top-2 right-2">
+                              Best Seller
+                            </Badge>
+                          )}
+                          {!item.available && (
+                            <div className="absolute inset-0 bg-background/80 flex items-center justify-center">
+                              <Badge variant="destructive">Unavailable</Badge>
+                            </div>
+                          )}
+                        </div>
+                        <CardHeader>
+                          <CardTitle className="flex items-start justify-between">
+                            <span>{item.name}</span>
+                            <span className="text-primary">${item.price}</span>
+                          </CardTitle>
+                          <CardDescription>{item.description}</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          {itemQuantity > 0 ? (
+                            <div className="flex items-center gap-2 w-full">
+                              <Button
+                                size="icon"
+                                variant="outline"
+                                onClick={() => updateQuantity(item.id, -1)}
+                                className="h-10 w-10"
+                              >
+                                <Minus className="h-4 w-4" />
+                              </Button>
+                              <span className="flex-1 text-center font-semibold text-lg">
+                                {itemQuantity}
+                              </span>
+                              <Button
+                                size="icon"
+                                onClick={() => updateQuantity(item.id, 1)}
+                                disabled={!item.available}
+                                className="h-10 w-10"
+                              >
+                                <Plus className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          ) : (
+                            <Button 
+                              className="w-full" 
+                              onClick={() => addToCart(item)}
+                              disabled={!item.available}
+                            >
+                              <ShoppingCart className="mr-2 h-4 w-4" />
+                              Add to Cart
+                            </Button>
+                          )}
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
               </div>
             </div>
           ))}
