@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Navbar } from '@/components/layout/Navbar';
+import StaffLoginForm from '@/components/auth/StaffLoginForm';
 import { 
   Users, 
   ChefHat, 
@@ -142,6 +143,87 @@ const Index = () => {
                 </CardHeader>
               </Card>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Dual Login Section */}
+      <section className="py-20 bg-muted/30">
+        <div className="container">
+          <div className="grid gap-12 lg:grid-cols-2 items-start">
+            {/* Owner/Customer Login */}
+            <div className="space-y-6">
+              <div className="text-center">
+                <h2 className="text-3xl font-bold mb-4">For Owners & Customers</h2>
+                <p className="text-muted-foreground mb-8">
+                  Start your restaurant management journey or enjoy seamless dining
+                </p>
+              </div>
+              
+              <Card className="border-border/50 shadow-medium">
+                <CardHeader>
+                  <CardTitle className="text-2xl">Get Started</CardTitle>
+                  <CardDescription>Choose how you want to begin</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-3">
+                    <Link to="/register" className="block">
+                      <Button variant="hero" size="lg" className="w-full">
+                        <Store className="mr-2 h-5 w-5" />
+                        Register New Restaurant
+                      </Button>
+                    </Link>
+                    <Link to="/login" className="block">
+                      <Button variant="outline" size="lg" className="w-full">
+                        Sign In as Owner
+                      </Button>
+                    </Link>
+                    <div className="relative">
+                      <div className="absolute inset-0 flex items-center">
+                        <span className="w-full border-t" />
+                      </div>
+                      <div className="relative flex justify-center text-xs uppercase">
+                        <span className="bg-background px-2 text-muted-foreground">
+                          Or
+                        </span>
+                      </div>
+                    </div>
+                    <Link to="/login" className="block">
+                      <Button variant="ghost" size="lg" className="w-full">
+                        <QrCode className="mr-2 h-5 w-5" />
+                        Customer Login
+                      </Button>
+                    </Link>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Staff/Manager Login */}
+            <div className="space-y-6">
+              <div className="text-center">
+                <h2 className="text-3xl font-bold mb-4">For Staff & Managers</h2>
+                <p className="text-muted-foreground mb-8">
+                  Access your workspace to manage daily operations
+                </p>
+              </div>
+              
+              <StaffLoginForm />
+              
+              <Card className="border-primary/20 bg-primary/5">
+                <CardContent className="pt-6">
+                  <div className="flex items-start gap-3">
+                    <ShieldCheck className="h-5 w-5 text-primary mt-0.5" />
+                    <div className="space-y-1">
+                      <p className="text-sm font-medium">Need Access?</p>
+                      <p className="text-sm text-muted-foreground">
+                        Contact your branch manager to get your login credentials and restaurant ID.
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </div>
       </section>

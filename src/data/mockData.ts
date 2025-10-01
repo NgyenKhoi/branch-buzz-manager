@@ -215,6 +215,51 @@ export const mockMembers = [
   },
 ];
 
+// Mock brands for restaurant chains
+export const mockBrands = [
+  {
+    id: '1',
+    name: 'The Gourmet Kitchen',
+    description: 'Fine dining experience with international cuisine',
+    totalBranches: 5,
+    status: 'active',
+    established: '2015',
+  },
+  {
+    id: '2',
+    name: 'Quick Bites Express',
+    description: 'Fast casual dining with fresh ingredients',
+    totalBranches: 12,
+    status: 'active',
+    established: '2018',
+  },
+  {
+    id: '3',
+    name: 'Seafood Paradise',
+    description: 'Premium seafood and coastal cuisine',
+    totalBranches: 3,
+    status: 'active',
+    established: '2020',
+  },
+];
+
+// Mock owner statistics
+export const mockOwnerStats = {
+  totalRevenue: 487650,
+  revenueGrowth: 12.5,
+  totalOrders: 8943,
+  ordersGrowth: 8.2,
+  activeCustomers: 2847,
+  customerGrowth: 15.3,
+  avgOrderValue: 54.50,
+  branchPerformance: [
+    { name: 'Downtown Branch', revenue: 185000, percentage: 38 },
+    { name: 'Westside Branch', revenue: 145000, percentage: 30 },
+    { name: 'Eastside Branch', revenue: 97000, percentage: 20 },
+    { name: 'Northside Branch', revenue: 60650, percentage: 12 },
+  ],
+};
+
 // Add mock users for authentication
 export const mockUsers = [
   {

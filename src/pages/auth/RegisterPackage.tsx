@@ -1,0 +1,170 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Check, Building2, Store, Warehouse } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
+
+const packageSchema = z.object({
+  packageType: z.enum(['basic', 'pro', 'enterprise']),
+  restaurantName: z.string().min(3, 'Restaurant name must be at least 3 characters'),
+  branches: z.string().min(1, 'Number of branches is required'),
+});
+
+type PackageFormData = z.infer<typeof packageSchema>;
+
+const packages = [
+  {
+    id: 'basic',
+    name: 'Basic',
+    price: '$49/month',
+    icon: Store,
+    features: ['1-3 Branches', 'Basic Analytics', 'Email Support', 'QR Ordering'],
+  },
+  {
+    id: 'pro',
+    name: 'Professional',
+    price: '$99/month',
+    icon: Building2,
+    features: ['Up to 10 Branches', 'Advanced Analytics', 'Priority Support', 'Custom Branding', 'Staff Management'],
+    popular: true,
+  },
+  {
+    id: 'enterprise',
+    name: 'Enterprise',
+    price: 'Custom',
+    icon: Warehouse,
+    features: ['Unlimited Branches', 'Real-time Analytics', '24/7 Support', 'White Label', 'API Access', 'Dedicated Manager'],
+  },
+];
+
+const RegisterPackage = () => {
+  const navigate = useNavigate();
+  const [selectedPackage, setSelectedPackage] = useState<string>('pro');
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<PackageFormData>({
+    resolver: zodResolver(packageSchema),
+    defaultValues: {
+      packageType: 'pro',
+    },
+  });
+
+  const onSubmit = (data: PackageFormData) => {
+    // Store package selection in localStorage
+    localStorage.setItem('selected_package', JSON.stringify(data));
+    
+    toast({
+      title: 'Package Selected',
+      description: `You've selected the ${packages.find(p => p.id === data.packageType)?.name} plan.`,
+    });
+
+    // Navigate to custom landing page setup
+    navigate('/setup/landing');
+  };
+
+  return (
+    <div className="min-h-screen bg-muted/30 py-12 px-4">
+      <div className="container max-w-6xl">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold mb-4">Choose Your Plan</h1>
+          <p className="text-lg text-muted-foreground">Select the perfect package for your restaurant business</p>
+        </div>
+
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="grid gap-6 md:grid-cols-3 mb-8">
+            {packages.map((pkg) => (
+              <Card
+                key={pkg.id}
+                className={`relative cursor-pointer transition-smooth hover:shadow-medium ${
+                  selectedPackage === pkg.id ? 'border-primary shadow-medium' : 'border-border/50'
+                }`}
+                onClick={() => setSelectedPackage(pkg.id)}
+              >
+                {pkg.popular && (
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-primary text-primary-foreground text-sm font-medium rounded-full">
+                    Most Popular
+                  </div>
+                )}
+                <CardHeader>
+                  <div className="flex items-center justify-between mb-2">
+                    <pkg.icon className="h-10 w-10 text-primary" />
+                    <RadioGroupItem value={pkg.id} checked={selectedPackage === pkg.id} />
+                  </div>
+                  <CardTitle className="text-2xl">{pkg.name}</CardTitle>
+                  <CardDescription className="text-2xl font-bold text-foreground">{pkg.price}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-3">
+                    {pkg.features.map((feature, index) => (
+                      <li key={index} className="flex items-start gap-2">
+                        <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                        <span className="text-sm">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+                <input
+                  type="radio"
+                  {...register('packageType')}
+                  value={pkg.id}
+                  className="sr-only"
+                />
+              </Card>
+            ))}
+          </div>
+
+          <Card className="max-w-2xl mx-auto">
+            <CardHeader>
+              <CardTitle>Restaurant Details</CardTitle>
+              <CardDescription>Tell us about your restaurant</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label htmlFor="restaurantName">Restaurant Name</Label>
+                <input
+                  {...register('restaurantName')}
+                  id="restaurantName"
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  placeholder="Enter your restaurant name"
+                />
+                {errors.restaurantName && (
+                  <p className="text-sm text-destructive mt-1">{errors.restaurantName.message}</p>
+                )}
+              </div>
+
+              <div>
+                <Label htmlFor="branches">Number of Branches</Label>
+                <input
+                  {...register('branches')}
+                  id="branches"
+                  type="number"
+                  min="1"
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  placeholder="How many branches?"
+                />
+                {errors.branches && (
+                  <p className="text-sm text-destructive mt-1">{errors.branches.message}</p>
+                )}
+              </div>
+
+              <Button type="submit" className="w-full" size="lg">
+                Continue to Setup
+              </Button>
+            </CardContent>
+          </Card>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default RegisterPackage;

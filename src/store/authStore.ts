@@ -17,7 +17,8 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   initialize: () => Promise<void>;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string, restaurantId?: string) => Promise<void>;
+  loginStaff: (restaurantId: string, username: string, password: string) => Promise<void>;
   register: (email: string, password: string, name: string) => Promise<void>;
   logout: () => Promise<void>;
   setUser: (user: User | null) => void;
@@ -51,7 +52,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ isLoading: false, user: sessionUser, isAuthenticated: !!sessionUser });
   },
 
-  login: async (email: string, password: string) => {
+  login: async (email: string, password: string, restaurantId?: string) => {
     set({ isLoading: true });
     // Find user and ensure role is UserRole
     const found = mockUsers.find(u => u.email === email && u.password === password);
@@ -66,6 +67,10 @@ export const useAuthStore = create<AuthState>((set) => ({
       };
       sessionUser = user;
       saveUser(user);
+      
+      // Mock JWT token
+      localStorage.setItem('auth_token', `mock_jwt_token_${user.id}_${Date.now()}`);
+      
       set({ user, isAuthenticated: true, isLoading: false });
       toast({ title: 'Welcome back!', description: 'You have successfully logged in.' });
     } else {
@@ -74,6 +79,47 @@ export const useAuthStore = create<AuthState>((set) => ({
         variant: 'destructive',
         title: 'Login failed',
         description: 'Please check your credentials and try again.',
+      });
+      throw new Error('Invalid credentials');
+    }
+  },
+
+  loginStaff: async (restaurantId: string, username: string, password: string) => {
+    set({ isLoading: true });
+    // Find staff user by username and password
+    const found = mockUsers.find(u => 
+      u.email.includes(username.toLowerCase()) && 
+      u.password === password &&
+      (u.role === 'staff' || u.role === 'branch_manager')
+    );
+    
+    if (found) {
+      const { password, ...userRaw } = found;
+      const user: User = {
+        id: userRaw.id,
+        email: userRaw.email,
+        name: userRaw.name,
+        role: userRaw.role as UserRole,
+        avatar: userRaw.avatar,
+      };
+      sessionUser = user;
+      saveUser(user);
+      
+      // Mock JWT token
+      localStorage.setItem('auth_token', `mock_jwt_token_${user.id}_${Date.now()}`);
+      localStorage.setItem('restaurant_id', restaurantId);
+      
+      set({ user, isAuthenticated: true, isLoading: false });
+      toast({ 
+        title: 'Welcome back!', 
+        description: `Logged in to restaurant #${restaurantId}` 
+      });
+    } else {
+      set({ isLoading: false });
+      toast({
+        variant: 'destructive',
+        title: 'Login failed',
+        description: 'Invalid credentials or restaurant ID.',
       });
       throw new Error('Invalid credentials');
     }
