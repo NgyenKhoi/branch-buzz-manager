@@ -36,7 +36,8 @@ const Register = () => {
     
     try {
       await registerUser(formData.email, formData.password, formData.name);
-      navigate('/login');
+      // After successful registration, user is auto-logged in and navigated to package selection
+      navigate('/register/package');
     } catch (error) {
       // Error handling is done in the auth store
     } finally {

@@ -38,7 +38,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   return (
     <div className="min-h-screen flex w-full bg-muted/30">
       {/* Sidebar */}
-      <aside className="w-64 border-r bg-card shadow-soft flex flex-col">
+      <aside className="w-64 border-r bg-card shadow-soft flex flex-col fixed h-screen">
         <div className="p-6 border-b">
           <Link to="/dashboard" className="flex items-center gap-2">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg gradient-primary">
@@ -48,7 +48,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           </Link>
         </div>
 
-        <nav className="flex-1 p-4 space-y-2">
+        <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
           {menuItems.map((item) => (
             <Link key={item.path} to={item.path}>
               <Button
@@ -85,8 +85,8 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 overflow-auto">
+      {/* Main Content with left margin to account for fixed sidebar */}
+      <main className="flex-1 overflow-auto ml-64 p-6 md:p-8 lg:p-10">
         {children}
       </main>
     </div>

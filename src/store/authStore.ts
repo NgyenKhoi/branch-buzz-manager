@@ -141,18 +141,26 @@ export const useAuthStore = create<AuthState>((set) => ({
       id: (mockUsers.length + 1).toString(),
       email,
       name,
-      role: 'customer' as UserRole,
+      role: 'owner' as UserRole, // Register as owner for restaurant management
       avatar: undefined,
       password,
     };
     mockUsers.push(newUser);
+    
+    // Persist mockUsers to localStorage
+    localStorage.setItem('mock_users', JSON.stringify(mockUsers));
+    
     const { password: _pw, ...user } = newUser;
     sessionUser = user;
     saveUser(user);
+    
+    // Mock JWT token
+    localStorage.setItem('auth_token', `mock_jwt_token_${user.id}_${Date.now()}`);
+    
     set({ user, isAuthenticated: true, isLoading: false });
     toast({
-      title: 'Registration successful!',
-      description: 'You have been registered and logged in.',
+      title: 'Welcome aboard!',
+      description: 'Your account has been created. Let\'s set up your restaurant.',
     });
   },
 

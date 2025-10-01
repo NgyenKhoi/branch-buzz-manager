@@ -50,16 +50,45 @@ const CustomLanding = () => {
   };
 
   const onSubmit = (data: LandingFormData) => {
-    // Store landing page data in localStorage
-    localStorage.setItem('landing_config', JSON.stringify({
+    // Get selected package and user info from localStorage
+    const selectedPackage = JSON.parse(localStorage.getItem('selected_package') || '{}');
+    const currentUser = JSON.parse(localStorage.getItem('mock_auth_user') || '{}');
+    
+    // Create new branch data
+    const newBranch = {
+      id: Date.now().toString(),
+      name: data.brandName,
+      address: data.address,
+      phone: data.phone,
+      email: data.email,
+      logo,
+      bannerImage,
+      tagline: data.tagline,
+      description: data.description,
+      ownerId: currentUser.id,
+      package: selectedPackage.packageType,
+      createdAt: new Date().toISOString(),
+    };
+    
+    // Store branch data in localStorage
+    const existingBranches = JSON.parse(localStorage.getItem('mock_branches') || '[]');
+    existingBranches.push(newBranch);
+    localStorage.setItem('mock_branches', JSON.stringify(existingBranches));
+    
+    // Store landing page configuration
+    const landingConfig = {
       ...data,
       logo,
       bannerImage,
-    }));
-
+    };
+    localStorage.setItem('landing_config', JSON.stringify(landingConfig));
+    
+    // Set this as the selected brand
+    localStorage.setItem('selected_brand', JSON.stringify(newBranch));
+    
     toast({
-      title: 'Landing Page Created',
-      description: 'Your custom landing page has been set up successfully!',
+      title: 'Setup Complete!',
+      description: 'Your restaurant is ready. Welcome to your dashboard!',
     });
 
     // Navigate to owner dashboard
