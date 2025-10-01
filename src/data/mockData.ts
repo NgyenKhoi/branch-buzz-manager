@@ -264,16 +264,16 @@ export const mockOwnerStats = {
 export const mockUsers = [
   {
     id: '1',
-    email: 'customer@email.com',
-    password: 'password123',
+    email: 'customer@gmail.com',
+    password: 'customerpass',
     name: 'Customer User',
     role: 'customer',
     avatar: undefined,
   },
   {
     id: '2',
-    email: 'manager@email.com',
-    password: 'password123',
+    email: 'manager@restaurant.com',
+    password: 'managerpass',
     name: 'Manager User',
     role: 'branch_manager',
     branchId: '1',
@@ -281,8 +281,8 @@ export const mockUsers = [
   },
   {
     id: '3',
-    email: 'admin@email.com',
-    password: 'password123',
+    email: 'admin@gmail.com',
+    password: 'adminpass',
     name: 'Admin User',
     role: 'admin',
     avatar: undefined,
@@ -333,3 +333,4 @@ export const mockUsers = [
     avatar: undefined,
   },
 ];
+
