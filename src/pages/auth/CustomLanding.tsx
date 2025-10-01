@@ -54,19 +54,31 @@ const CustomLanding = () => {
     const selectedPackage = JSON.parse(localStorage.getItem('selected_package') || '{}');
     const currentUser = JSON.parse(localStorage.getItem('mock_auth_user') || '{}');
     
-    // Create new branch data
+    // Generate unique short code for the branch
+    const shortCode = data.brandName
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '')
+      + '-' + Date.now().toString(36);
+    
+    // Create new branch data with all required fields
     const newBranch = {
       id: Date.now().toString(),
       name: data.brandName,
+      shortCode,
+      brandName: data.brandName,
+      tagline: data.tagline || '',
+      description: data.description || '',
       address: data.address,
       phone: data.phone,
       email: data.email,
-      logo,
-      bannerImage,
-      tagline: data.tagline,
-      description: data.description,
+      logoUrl: logo,
+      bannerUrl: bannerImage,
+      packageType: selectedPackage.packageType,
       ownerId: currentUser.id,
-      package: selectedPackage.packageType,
+      managerId: null,
+      status: 'active',
       createdAt: new Date().toISOString(),
     };
     
@@ -80,6 +92,7 @@ const CustomLanding = () => {
       ...data,
       logo,
       bannerImage,
+      shortCode,
     };
     localStorage.setItem('landing_config', JSON.stringify(landingConfig));
     

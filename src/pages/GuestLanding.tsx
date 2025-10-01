@@ -1,0 +1,221 @@
+import { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import { branchApi, menuApi } from '@/lib/api';
+import { Phone, Mail, MapPin, Clock, ShoppingCart } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
+
+const GuestLanding = () => {
+  const { shortCode } = useParams<{ shortCode: string }>();
+  const [branch, setBranch] = useState<any>(null);
+  const [menuItems, setMenuItems] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedItems, setSelectedItems] = useState<any[]>([]);
+
+  useEffect(() => {
+    const loadBranchData = async () => {
+      try {
+        setLoading(true);
+        if (!shortCode) throw new Error('Branch code not provided');
+
+        // Fetch branch data
+        const branchResponse = await branchApi.getByShortCode(shortCode);
+        setBranch(branchResponse.data);
+
+        // Fetch menu items
+        const menuResponse = await menuApi.getAll(branchResponse.data.id);
+        setMenuItems(menuResponse.data);
+      } catch (error) {
+        console.error('Error loading branch:', error);
+        toast({
+          variant: 'destructive',
+          title: 'Branch not found',
+          description: 'The requested branch could not be found.',
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadBranchData();
+  }, [shortCode]);
+
+  const addToCart = (item: any) => {
+    setSelectedItems([...selectedItems, item]);
+    toast({
+      title: 'Added to cart',
+      description: `${item.name} added to your order`,
+    });
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (!branch) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Card className="max-w-md">
+          <CardHeader>
+            <CardTitle>Branch Not Found</CardTitle>
+            <CardDescription>
+              The branch you're looking for doesn't exist or is no longer available.
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    );
+  }
+
+  const menuCategories = [...new Set(menuItems.map(item => item.category))];
+
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Hero Section */}
+      <div 
+        className="relative h-[400px] bg-gradient-subtle flex items-center justify-center"
+        style={branch.bannerUrl ? { backgroundImage: `url(${branch.bannerUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
+      >
+        <div className="absolute inset-0 bg-background/60 backdrop-blur-sm" />
+        <div className="relative z-10 text-center px-4 max-w-3xl mx-auto">
+          {branch.logoUrl && (
+            <img 
+              src={branch.logoUrl} 
+              alt={branch.brandName}
+              className="h-20 w-auto mx-auto mb-4"
+            />
+          )}
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">{branch.brandName}</h1>
+          <p className="text-xl md:text-2xl text-muted-foreground mb-2">{branch.tagline}</p>
+          <p className="text-lg text-muted-foreground">{branch.description}</p>
+        </div>
+      </div>
+
+      {/* Branch Info */}
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle className="text-2xl">{branch.name}</CardTitle>
+            <CardDescription>Branch Information</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              <div className="flex items-start gap-3">
+                <MapPin className="h-5 w-5 text-primary mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium">Address</p>
+                  <p className="text-sm text-muted-foreground">{branch.address}</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <Phone className="h-5 w-5 text-primary mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium">Phone</p>
+                  <p className="text-sm text-muted-foreground">{branch.phone}</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <Mail className="h-5 w-5 text-primary mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium">Email</p>
+                  <p className="text-sm text-muted-foreground">{branch.email}</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <Clock className="h-5 w-5 text-primary mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium">Hours</p>
+                  <p className="text-sm text-muted-foreground">Mon-Sun: 10am - 10pm</p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Menu Section */}
+        <div className="space-y-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-3xl font-bold">Our Menu</h2>
+              <p className="text-muted-foreground mt-1">Browse our delicious offerings</p>
+            </div>
+            {selectedItems.length > 0 && (
+              <Button size="lg" className="gap-2">
+                <ShoppingCart className="h-5 w-5" />
+                View Cart ({selectedItems.length})
+              </Button>
+            )}
+          </div>
+
+          {menuCategories.map(category => (
+            <div key={category} className="space-y-4">
+              <div className="flex items-center gap-3">
+                <h3 className="text-2xl font-semibold">{category}</h3>
+                <Separator className="flex-1" />
+              </div>
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {menuItems
+                  .filter(item => item.category === category)
+                  .map(item => (
+                    <Card key={item.id} className="overflow-hidden hover:shadow-medium transition-smooth">
+                      <div className="aspect-video bg-muted relative">
+                        <img 
+                          src={item.imageUrl} 
+                          alt={item.name}
+                          className="w-full h-full object-cover"
+                        />
+                        {item.bestSeller && (
+                          <Badge className="absolute top-2 right-2">
+                            Best Seller
+                          </Badge>
+                        )}
+                        {!item.available && (
+                          <div className="absolute inset-0 bg-background/80 flex items-center justify-center">
+                            <Badge variant="destructive">Unavailable</Badge>
+                          </div>
+                        )}
+                      </div>
+                      <CardHeader>
+                        <CardTitle className="flex items-start justify-between">
+                          <span>{item.name}</span>
+                          <span className="text-primary">${item.price}</span>
+                        </CardTitle>
+                        <CardDescription>{item.description}</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <Button 
+                          className="w-full" 
+                          onClick={() => addToCart(item)}
+                          disabled={!item.available}
+                        >
+                          Add to Order
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Footer */}
+      <footer className="border-t mt-16 py-8 bg-muted/30">
+        <div className="max-w-7xl mx-auto px-4 text-center">
+          <p className="text-sm text-muted-foreground">
+            © 2025 {branch.brandName}. All rights reserved.
+          </p>
+        </div>
+      </footer>
+    </div>
+  );
+};
+
+export default GuestLanding;
