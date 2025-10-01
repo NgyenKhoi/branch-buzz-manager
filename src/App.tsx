@@ -14,6 +14,7 @@ import OwnerDashboard from "./pages/dashboard/OwnerDashboard";
 import StaffDashboard from "./pages/dashboard/StaffDashboard";
 import ManagerDashboard from "./pages/dashboard/ManagerDashboard";
 import AdminDashboard from "./pages/dashboard/AdminDashboard";
+import GuestLanding from "./pages/GuestLanding";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -31,6 +32,9 @@ const App = () => (
           <Route path="/register" element={<Register />} />
           <Route path="/register/package" element={<RegisterPackage />} />
           <Route path="/setup/landing" element={<CustomLanding />} />
+          
+          {/* Public guest landing page */}
+          <Route path="/branch/:shortCode" element={<GuestLanding />} />
           <Route 
             path="/brand-selection" 
             element={

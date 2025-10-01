@@ -149,18 +149,34 @@ export const mockBranches = [
   {
     id: '1',
     name: 'Downtown Branch',
+    shortCode: 'downtown',
     address: '123 Main Street, City Center',
     phone: '+1 234 567 8900',
+    email: 'downtown@restaurant.com',
     status: 'active',
     managerId: '3',
+    brandName: 'The Gourmet Kitchen',
+    tagline: 'Fine dining at its best',
+    description: 'Experience culinary excellence in the heart of downtown',
+    logoUrl: null,
+    bannerUrl: null,
+    ownerId: '1',
   },
   {
     id: '2',
     name: 'Westside Branch',
+    shortCode: 'westside',
     address: '456 West Avenue, Westside',
     phone: '+1 234 567 8901',
+    email: 'westside@restaurant.com',
     status: 'active',
     managerId: null,
+    brandName: 'The Gourmet Kitchen',
+    tagline: 'Fresh flavors, west side style',
+    description: 'Your neighborhood favorite for exceptional dining',
+    logoUrl: null,
+    bannerUrl: null,
+    ownerId: '1',
   },
 ];
 
@@ -333,3 +349,7 @@ export const mockUsers = [
     avatar: undefined,
   },
 ];
+
+// Valid user roles
+export const userRoles = ['owner', 'admin', 'branch_manager', 'staff', 'customer', 'guest'] as const;
+export type UserRole = typeof userRoles[number];
