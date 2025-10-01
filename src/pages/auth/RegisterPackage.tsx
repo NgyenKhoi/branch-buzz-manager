@@ -45,11 +45,12 @@ const packages = [
 
 const RegisterPackage = () => {
   const navigate = useNavigate();
-  const [selectedPackage, setSelectedPackage] = useState<string>('pro');
 
   const {
     register,
     handleSubmit,
+    watch,
+    setValue,
     formState: { errors },
   } = useForm<PackageFormData>({
     resolver: zodResolver(packageSchema),
@@ -57,6 +58,8 @@ const RegisterPackage = () => {
       packageType: 'pro',
     },
   });
+
+  const selectedPackage = watch('packageType');
 
   const onSubmit = (data: PackageFormData) => {
     // Store package selection in localStorage
@@ -80,47 +83,46 @@ const RegisterPackage = () => {
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="grid gap-6 md:grid-cols-3 mb-8">
-            {packages.map((pkg) => (
-              <Card
-                key={pkg.id}
-                className={`relative cursor-pointer transition-smooth hover:shadow-medium ${
-                  selectedPackage === pkg.id ? 'border-primary shadow-medium' : 'border-border/50'
-                }`}
-                onClick={() => setSelectedPackage(pkg.id)}
-              >
-                {pkg.popular && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-primary text-primary-foreground text-sm font-medium rounded-full">
-                    Most Popular
-                  </div>
-                )}
-                <CardHeader>
-                  <div className="flex items-center justify-between mb-2">
-                    <pkg.icon className="h-10 w-10 text-primary" />
-                    <RadioGroupItem value={pkg.id} checked={selectedPackage === pkg.id} />
-                  </div>
-                  <CardTitle className="text-2xl">{pkg.name}</CardTitle>
-                  <CardDescription className="text-2xl font-bold text-foreground">{pkg.price}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-3">
-                    {pkg.features.map((feature, index) => (
-                      <li key={index} className="flex items-start gap-2">
-                        <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                        <span className="text-sm">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-                <input
-                  type="radio"
-                  {...register('packageType')}
-                  value={pkg.id}
-                  className="sr-only"
-                />
-              </Card>
-            ))}
-          </div>
+          <RadioGroup
+            value={selectedPackage}
+            onValueChange={(value) => setValue('packageType', value as 'basic' | 'pro' | 'enterprise')}
+          >
+            <div className="grid gap-6 md:grid-cols-3 mb-8">
+              {packages.map((pkg) => (
+                <Card
+                  key={pkg.id}
+                  className={`relative cursor-pointer transition-smooth hover:shadow-medium ${
+                    selectedPackage === pkg.id ? 'border-primary shadow-medium' : 'border-border/50'
+                  }`}
+                  onClick={() => setValue('packageType', pkg.id as 'basic' | 'pro' | 'enterprise')}
+                >
+                  {pkg.popular && (
+                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-primary text-primary-foreground text-sm font-medium rounded-full">
+                      Most Popular
+                    </div>
+                  )}
+                  <CardHeader>
+                    <div className="flex items-center justify-between mb-2">
+                      <pkg.icon className="h-10 w-10 text-primary" />
+                      <RadioGroupItem value={pkg.id} />
+                    </div>
+                    <CardTitle className="text-2xl">{pkg.name}</CardTitle>
+                    <CardDescription className="text-2xl font-bold text-foreground">{pkg.price}</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <ul className="space-y-3">
+                      {pkg.features.map((feature, index) => (
+                        <li key={index} className="flex items-start gap-2">
+                          <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                          <span className="text-sm">{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </RadioGroup>
 
           <Card className="max-w-2xl mx-auto">
             <CardHeader>
