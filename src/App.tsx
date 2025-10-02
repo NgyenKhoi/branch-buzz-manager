@@ -17,6 +17,7 @@ import AdminDashboard from "./pages/dashboard/AdminDashboard";
 import GuestLanding from "./pages/GuestLanding";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
+import StaffManagerLoginPage from './pages/auth/StaffManagerLogin';
 
 const queryClient = new QueryClient();
 
@@ -83,6 +84,7 @@ const App = () => (
               </ProtectedRoute>
             } 
           />
+          <Route path="/auth/staff-manager-login" element={<StaffManagerLoginPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -17,7 +17,9 @@ const landingSchema = z.object({
   description: z.string().min(10, 'Description must be at least 10 characters'),
   phone: z.string().min(10, 'Valid phone number required'),
   email: z.string().email('Valid email required'),
-  address: z.string().min(10, 'Address must be at least 10 characters'),
+  branches: z.array(z.object({
+    address: z.string().min(10, 'Address must be at least 10 characters'),
+  })),
 });
 
 type LandingFormData = z.infer<typeof landingSchema>;
@@ -26,13 +28,20 @@ const CustomLanding = () => {
   const navigate = useNavigate();
   const [logo, setLogo] = useState<string | null>(null);
   const [bannerImage, setBannerImage] = useState<string | null>(null);
+  const selectedPackage = JSON.parse(localStorage.getItem('selected_package') || '{}');
+  const branchCount = selectedPackage.branches || 1;
 
   const {
     register,
     handleSubmit,
     formState: { errors },
+    setValue,
+    watch,
   } = useForm<LandingFormData>({
     resolver: zodResolver(landingSchema),
+    defaultValues: {
+      branches: Array.from({ length: branchCount }, () => ({ address: '' })),
+    },
   });
 
   const handleImageUpload = (
@@ -70,7 +79,7 @@ const CustomLanding = () => {
       brandName: data.brandName,
       tagline: data.tagline || '',
       description: data.description || '',
-      address: data.address,
+      address: data.branches[0].address,
       phone: data.phone,
       email: data.email,
       logoUrl: logo,
@@ -83,8 +92,14 @@ const CustomLanding = () => {
     };
     
     // Store branch data in localStorage
+    // Add all branch addresses
+    const branches = data.branches.map((b, idx) => ({
+      ...newBranch,
+      id: `${Date.now()}_${idx}`,
+      address: b.address,
+    }));
     const existingBranches = JSON.parse(localStorage.getItem('mock_branches') || '[]');
-    existingBranches.push(newBranch);
+    existingBranches.push(...branches);
     localStorage.setItem('mock_branches', JSON.stringify(existingBranches));
     
     // Store landing page configuration
@@ -293,6 +308,32 @@ const CustomLanding = () => {
                   className="h-11"
                 />
                 {errors.address && <p className="text-sm text-destructive mt-1.5">{errors.address.message}</p>}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Branch Addresses */}
+          <Card className="border-2 overflow-hidden">
+            <CardHeader className="bg-muted/50">
+              <CardTitle>Branch Addresses</CardTitle>
+              <CardDescription>Specify the addresses for each branch</CardDescription>
+            </CardHeader>
+            <CardContent className="pt-6 space-y-5">
+              <div className="grid gap-6 md:grid-cols-2">
+                {Array.from({ length: branchCount }).map((_, idx) => (
+                  <div key={idx} className="mb-4">
+                    <Label htmlFor={`branches.${idx}.address`}>Branch {idx + 1} Address</Label>
+                    <Input
+                      {...register(`branches.${idx}.address` as const)}
+                      id={`branches.${idx}.address`}
+                      placeholder="Enter full address"
+                      className="h-11"
+                    />
+                    {errors.branches?.[idx]?.address && (
+                      <p className="text-sm text-destructive mt-1">{errors.branches[idx]?.address?.message}</p>
+                    )}
+                  </div>
+                ))}
               </div>
             </CardContent>
           </Card>

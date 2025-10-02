@@ -55,6 +55,8 @@ export const useOrderStore = create<OrderState>((set) => ({
       };
       const updated = [newOrder, ...state.orders];
       saveOrders(updated);
+      // Notify staff/manager in localStorage for cross-tab
+      localStorage.setItem('order_notification', JSON.stringify(newOrder));
       return { orders: updated };
     }),
 
@@ -68,9 +70,9 @@ export const useOrderStore = create<OrderState>((set) => ({
     }),
 
   getOrdersByBranch: (branchId) => {
-    const { orders } = useOrderStore.getState();
-    if (!branchId) return orders;
-    return orders.filter((o) => o.branchId === branchId);
+    const allOrders = loadOrders();
+    if (!branchId) return allOrders;
+    return allOrders.filter((order) => order.branchId === branchId);
   },
 
   getPendingOrders: (branchId) => {

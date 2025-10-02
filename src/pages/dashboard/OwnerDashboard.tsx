@@ -25,25 +25,27 @@ const OwnerDashboard = () => {
   const [bestSellers, setBestSellers] = useState<any[]>([]);
   const [userBranches, setUserBranches] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedBrand, setSelectedBrand] = useState<string | null>(null);
 
   useEffect(() => {
     const loadDashboardData = async () => {
       try {
         setLoading(true);
-        
         // Load stats
         const statsResponse = await statsApi.getOwnerStats();
         setStats(statsResponse.data);
-
         // Load menu items for best sellers
         const menuResponse = await menuApi.getAll();
         setBestSellers(menuResponse.data.filter((item: any) => item.bestSeller).slice(0, 5));
-
         // Load user's branches
         const branchesResponse = await branchApi.getAll();
-        const userBranchesList = branchesResponse.data.filter(
-          (branch: any) => branch.ownerId === user?.id
-        );
+        let userBranchesList = branchesResponse.data.filter((branch: any) => branch.ownerId === user?.id);
+        // If user has a selected brand, filter branches by brand
+        let brandId = localStorage.getItem('selected_brand_id');
+        if (brandId) {
+          userBranchesList = userBranchesList.filter((branch: any) => branch.brandId === brandId || branch.brandName === brandId);
+          setSelectedBrand(brandId);
+        }
         setUserBranches(userBranchesList);
       } catch (error) {
         console.error('Error loading dashboard:', error);
@@ -56,13 +58,14 @@ const OwnerDashboard = () => {
         setLoading(false);
       }
     };
-
     loadDashboardData();
   }, [user]);
 
-  const getBranchUrl = (shortCode: string) => {
-    return `${window.location.origin}/branch/${shortCode}`;
+
+  const getBranchUrl = (branch: any) => {
+    return `${window.location.origin}/branch/${branch.shortCode}`;
   };
+
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -88,70 +91,40 @@ const OwnerDashboard = () => {
         <div>
           <h1 className="text-3xl font-bold">Owner Dashboard</h1>
           <p className="text-muted-foreground mt-2">
-            Overview of all your restaurant operations
+            Overview of your selected brand
           </p>
         </div>
 
-        {/* Branch QR Codes Section */}
-        {userBranches.length > 0 && (
+        {/* Brand QR Code Section */}
+        {userBranches && userBranches.length > 0 && (
           <Card>
             <CardHeader>
-              <CardTitle>Your Branch Links & QR Codes</CardTitle>
+              <CardTitle>Your Branch Public Link & QR Code</CardTitle>
               <CardDescription>
-                Share these links or QR codes with your customers to access your branch menu
+                Share this link or QR code with your customers to access your branch menu
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-6">
-                {userBranches.map((branch) => {
-                  const branchUrl = getBranchUrl(branch.shortCode);
-                  return (
-                    <div key={branch.id} className="p-4 border rounded-lg space-y-4">
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <h3 className="font-semibold text-lg">{branch.name}</h3>
-                          <p className="text-sm text-muted-foreground">{branch.address}</p>
-                        </div>
-                        <div className="bg-background p-3 rounded-lg border">
-                          <QRCodeSVG 
-                            value={branchUrl}
-                            size={120}
-                            level="H"
-                            includeMargin={true}
-                          />
-                        </div>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium">Public URL</label>
-                        <div className="flex gap-2">
-                          <Input 
-                            value={branchUrl}
-                            readOnly
-                            className="font-mono text-sm"
-                          />
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={() => copyToClipboard(branchUrl)}
-                          >
-                            <Copy className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={() => window.open(branchUrl, '_blank')}
-                          >
-                            <ExternalLink className="h-4 w-4" />
-                          </Button>
-                        </div>
-                        <p className="text-xs text-muted-foreground">
-                          Customers can scan the QR code or visit this URL to view your menu and place orders
-                        </p>
-                      </div>
+              <div className="flex flex-col gap-4 w-full">
+                {userBranches.map((branch: any) => (
+                  <div key={branch.id} className="flex flex-row items-center gap-4 w-full p-4 border rounded-lg bg-muted/50 min-h-[100px]">
+                    <div className="flex-shrink-0 flex items-center justify-center">
+                      <QRCodeSVG value={getBranchUrl(branch)} size={80} className="border bg-white rounded-md p-1" />
                     </div>
-                  );
-                })}
+                    <div className="flex flex-col flex-1 min-w-0">
+                      <div className="flex items-center gap-2 w-full">
+                        <span className="font-mono text-sm break-all bg-white px-2 py-1 rounded border flex-1 min-w-0 max-w-full">{getBranchUrl(branch)}</span>
+                        <Button size="icon" variant="ghost" className="ml-1" title="Open in new tab" onClick={() => window.open(getBranchUrl(branch), '_blank')}>
+                          <ExternalLink className="w-4 h-4" />
+                        </Button>
+                        <Button size="icon" variant="ghost" className="ml-1" title="Copy URL" onClick={() => copyToClipboard(getBranchUrl(branch))}>
+                          <Copy className="w-4 h-4" />
+                        </Button>
+                      </div>
+                      <div className="text-xs text-muted-foreground mt-1 truncate">{branch.name} - {branch.address}</div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </CardContent>
           </Card>

@@ -9,6 +9,7 @@ import { Phone, Mail, MapPin, Clock, ShoppingCart, Minus, Plus, Loader2 } from '
 import { toast } from '@/hooks/use-toast';
 import { BookingDialog } from '@/components/BookingDialog';
 import { OrderDialog } from '@/components/OrderDialog';
+import { OrderBillDialog } from '@/components/OrderBillDialog';
 import { BookingItem } from '@/store/bookingStore';
 import { OrderItem } from '@/store/orderStore';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -123,8 +124,8 @@ const GuestLanding = () => {
     <div className="min-h-screen bg-background">
       {/* Floating Cart Button */}
       {totalItems > 0 && (
-        <div className="fixed bottom-6 right-6 z-50">
-          <Tabs value={orderType} onValueChange={(v) => setOrderType(v as 'now' | 'booking')} className="w-[400px]">
+        <div className="fixed bottom-6 right-6 z-50 w-[400px]">
+          <Tabs value={orderType} onValueChange={(v) => setOrderType(v as 'now' | 'booking')} className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-2">
               <TabsTrigger value="now">Order Now</TabsTrigger>
               <TabsTrigger value="booking">Pre-Order</TabsTrigger>
@@ -289,7 +290,7 @@ const GuestLanding = () => {
                               disabled={!item.available}
                             >
                               <ShoppingCart className="mr-2 h-4 w-4" />
-                              Add to Cart
+                              Add to Order
                             </Button>
                           )}
                         </CardContent>

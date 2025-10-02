@@ -174,6 +174,18 @@ const Login = () => {
               Sign up
             </Link>
           </p>
+
+          <div className="mt-6 text-center">
+            <span className="text-sm text-muted-foreground">Are you Staff or Manager?</span>
+            <Button
+              type="button"
+              variant="secondary"
+              className="w-full mt-2"
+              onClick={() => navigate('/auth/staff-manager-login')}
+            >
+              Staff / Manager Login
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>

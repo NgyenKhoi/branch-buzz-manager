@@ -13,6 +13,40 @@ interface Brand {
   tagline?: string;
 }
 
+// Helper to get brands for a multi-branch owner
+function getOwnerBrands(user: any, allBranches: any[], allBrands: any[]) {
+  // If user has a 'branches' array, use that to find brands
+  if (user.branches && Array.isArray(user.branches)) {
+    // Find all brands that have branches matching user's branches
+    const userBrandNames = new Set<string>();
+    user.branches.forEach((b: any) => {
+      // Try to match branch name to brand name
+      const branch = allBranches.find((br: any) => br.name === b.name);
+      if (branch && branch.brandName) {
+        userBrandNames.add(branch.brandName);
+      }
+    });
+    // Return all brands that match
+    return allBrands.filter((brand: any) => userBrandNames.has(brand.name));
+  }
+  // Fallback: group by brandName from branches owned by user
+  const userBranches = allBranches.filter((b: any) => b.ownerId === user.id);
+  const brandMap = new Map<string, any[]>();
+  userBranches.forEach((branch: any) => {
+    const brandName = branch.brandName || 'Unnamed Brand';
+    if (!brandMap.has(brandName)) {
+      brandMap.set(brandName, []);
+    }
+    brandMap.get(brandName)?.push(branch);
+  });
+  return Array.from(brandMap.entries()).map(([name, branches]) => ({
+    name,
+    branches,
+    logoUrl: branches[0]?.logoUrl,
+    tagline: branches[0]?.tagline,
+  }));
+}
+
 const BrandSelection = () => {
   const navigate = useNavigate();
   const { user } = useAuthStore();
@@ -24,63 +58,31 @@ const BrandSelection = () => {
       return;
     }
 
-    // Load user's branches and group by brand
+    // Load all branches and brands
     const storedBranches = localStorage.getItem('mock_branches');
-    if (storedBranches) {
-      const allBranches = JSON.parse(storedBranches);
-      const userBranches = allBranches.filter((b: any) => b.ownerId === user.id);
-      
-      if (userBranches.length === 0) {
-        navigate('/register/package');
-        return;
-      }
+    const storedBrands = localStorage.getItem('mock_brands');
+    const allBranches = storedBranches ? JSON.parse(storedBranches) : [];
+    const allBrands = storedBrands ? JSON.parse(storedBrands) : [];
 
-      // Group branches by brand name
-      const brandMap = new Map<string, any[]>();
-      userBranches.forEach((branch: any) => {
-        const brandName = branch.brandName || 'Unnamed Brand';
-        if (!brandMap.has(brandName)) {
-          brandMap.set(brandName, []);
-        }
-        brandMap.get(brandName)?.push(branch);
-      });
-
-      // Convert to brand objects
-      const brandsList: Brand[] = Array.from(brandMap.entries()).map(([name, branches]) => ({
-        name,
-        branches,
-        logoUrl: branches[0]?.logoUrl,
-        tagline: branches[0]?.tagline,
-      }));
-
-      setBrands(brandsList);
-    } else {
+    // Use helper to get brands for this owner
+    const userBrands = getOwnerBrands(user, allBranches, allBrands);
+    if (userBrands.length === 0) {
       navigate('/register/package');
+      return;
     }
+    setBrands(userBrands);
   }, [user, navigate]);
 
   const handleBrandSelect = (brandName: string) => {
     const brand = brands.find(b => b.name === brandName);
     if (!brand) return;
-
     localStorage.setItem('selected_brand', brandName);
-    
-    if (brand.branches.length === 1) {
-      // Only one branch, select it automatically
-      localStorage.setItem('selected_branch', brand.branches[0].id);
-      toast({
-        title: 'Brand Selected',
-        description: `You've selected ${brandName}`,
-      });
-      navigate('/dashboard/owner');
-    } else {
-      // Multiple branches, show branch selection
-      toast({
-        title: 'Brand Selected',
-        description: `You've selected ${brandName}. Now choose a branch.`,
-      });
-      navigate('/branch-selection');
-    }
+    // Always go to owner dashboard, not branch selection
+    toast({
+      title: 'Brand Selected',
+      description: `You've selected ${brandName}`,
+    });
+    navigate('/dashboard/owner');
   };
 
   return (

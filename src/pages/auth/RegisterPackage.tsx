@@ -12,7 +12,6 @@ import { toast } from '@/hooks/use-toast';
 
 const packageSchema = z.object({
   packageType: z.enum(['basic', 'pro', 'enterprise']),
-  restaurantName: z.string().min(3, 'Restaurant name must be at least 3 characters'),
   branches: z.coerce.number().min(1, 'Must have at least 1 branch').max(100, 'Maximum 100 branches'),
 });
 
@@ -125,23 +124,10 @@ const RegisterPackage = () => {
 
           <Card className="max-w-2xl mx-auto">
             <CardHeader>
-              <CardTitle>Restaurant Details</CardTitle>
-              <CardDescription>Tell us about your restaurant</CardDescription>
+              <CardTitle>Branch Setup</CardTitle>
+              <CardDescription>How many branches do you want to set up?</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="restaurantName">Restaurant Name</Label>
-                <input
-                  {...register('restaurantName')}
-                  id="restaurantName"
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                  placeholder="Enter your restaurant name"
-                />
-                {errors.restaurantName && (
-                  <p className="text-sm text-destructive mt-1">{errors.restaurantName.message}</p>
-                )}
-              </div>
-
               <div>
                 <Label htmlFor="branches">Number of Branches</Label>
                 <input

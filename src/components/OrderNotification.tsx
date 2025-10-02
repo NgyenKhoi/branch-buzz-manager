@@ -20,7 +20,22 @@ export function OrderNotification({ branchId }: OrderNotificationProps) {
   useEffect(() => {
     const pending = getPendingOrders(branchId);
     setPendingOrders(pending);
-  }, [orders, branchId]);
+    // Listen for new order notifications (cross-tab)
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === 'order_notification') {
+        const newOrder = e.newValue ? JSON.parse(e.newValue) : null;
+        if (newOrder && (!branchId || newOrder.branchId === branchId)) {
+          setPendingOrders(getPendingOrders(branchId));
+          toast({
+            title: 'New Order Received',
+            description: `Order from ${newOrder.guestName} for ${newOrder.items.length} item(s)`,
+          });
+        }
+      }
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, [orders, branchId, getPendingOrders, toast]);
 
   const handleStatusUpdate = (orderId: string, status: 'preparing' | 'ready' | 'completed' | 'cancelled') => {
     updateOrderStatus(orderId, status);

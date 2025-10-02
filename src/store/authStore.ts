@@ -54,7 +54,6 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   login: async (email: string, password: string, restaurantId?: string) => {
     set({ isLoading: true });
-    // Find user and ensure role is UserRole
     const found = mockUsers.find(u => u.email === email && u.password === password);
     if (found) {
       const { password, ...userRaw } = found;
@@ -67,13 +66,13 @@ export const useAuthStore = create<AuthState>((set) => ({
       };
       sessionUser = user;
       saveUser(user);
-      
-      // Mock JWT token
       localStorage.setItem('auth_token', `mock_jwt_token_${user.id}_${Date.now()}`);
-      
       set({ user, isAuthenticated: true, isLoading: false });
       toast({ title: 'Welcome back!', description: 'You have successfully logged in.' });
-      
+      // Owner with multiple brands: always go to BrandSelection
+      if (user.role === 'owner') {
+        window.location.href = '/brand-selection';
+      }
       return user;
     } else {
       set({ isLoading: false });

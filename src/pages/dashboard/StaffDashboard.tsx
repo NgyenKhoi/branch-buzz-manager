@@ -9,17 +9,19 @@ import {
   CheckCircle2,
   AlertCircle
 } from 'lucide-react';
-import { mockOrders } from '@/data/mockData';
+import { useOrderStore } from '@/store/orderStore';
 import { toast } from '@/hooks/use-toast';
+import { useAuthStore } from '@/store/authStore';
 
 const StaffDashboard = () => {
-  const [orders, setOrders] = useState(mockOrders);
+  const { user } = useAuthStore();
+  // For staff/manager, branchId is on user object
+  const branchId = (user && 'branchId' in user) ? (user as any).branchId : undefined;
+  const orders = useOrderStore((state) => state.getOrdersByBranch(branchId));
+  const updateOrderStatus = useOrderStore((state) => state.updateOrderStatus);
 
   const handleStatusUpdate = (orderId: string, newStatus: string) => {
-    setOrders(orders.map(order => 
-      order.id === orderId ? { ...order, status: newStatus } : order
-    ));
-    
+    updateOrderStatus(orderId, newStatus);
     toast({
       title: 'Order Updated',
       description: `Order #${orderId} status changed to ${newStatus}`,

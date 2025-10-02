@@ -14,7 +14,6 @@ import { useOrderStore, OrderItem } from '@/store/orderStore';
 const orderSchema = z.object({
   guestName: z.string().min(2, 'Name must be at least 2 characters').max(100),
   guestPhone: z.string().min(10, 'Please enter a valid phone number').max(20),
-  tableNumber: z.string().optional(),
   notes: z.string().max(500).optional(),
 });
 
@@ -36,7 +35,6 @@ export function OrderDialog({ branchId, branchName, selectedItems, onOrderComple
     defaultValues: {
       guestName: '',
       guestPhone: '',
-      tableNumber: '',
       notes: '',
     },
   });
@@ -49,7 +47,6 @@ export function OrderDialog({ branchId, branchName, selectedItems, onOrderComple
       branchName,
       guestName: data.guestName,
       guestPhone: data.guestPhone,
-      tableNumber: data.tableNumber,
       items: selectedItems,
       notes: data.notes,
     });
@@ -120,20 +117,6 @@ export function OrderDialog({ branchId, branchName, selectedItems, onOrderComple
                   <FormLabel>Phone Number *</FormLabel>
                   <FormControl>
                     <Input placeholder="+1 234 567 8900" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="tableNumber"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Table Number (Optional)</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g., 12" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
