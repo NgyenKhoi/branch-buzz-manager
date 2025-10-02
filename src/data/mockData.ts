@@ -348,7 +348,23 @@ export const mockUsers = [
     branchId: '2',
     avatar: undefined,
   },
+
+   {
+    id: '100',
+    email: 'owner.multibranch@example.com',
+    name: 'Multi Branch Owner',
+    role: 'owner',
+    avatar: undefined,
+    password: 'owner123',
+    branches: [
+      { id: 'b1', name: 'Downtown Branch' },
+      { id: 'b2', name: 'Uptown Branch' },
+      { id: 'b3', name: 'Suburb Branch' }
+    ]
+  }
 ];
+
+
 
 // Valid user roles
 export const userRoles = ['owner', 'admin', 'branch_manager', 'staff', 'customer', 'guest'] as const;
