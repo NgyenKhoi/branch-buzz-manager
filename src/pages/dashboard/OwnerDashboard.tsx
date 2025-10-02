@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 import { useAuthStore } from '@/store/authStore';
 import OwnerDashboardLayout from '@/components/layout/OwnerDashboardLayout';
+import { seedBranchData } from '@/lib/mockDataInit';
 import { OverviewDashboard } from '@/components/owner/OverviewDashboard';
 import { MenuManagement } from '@/components/owner/MenuManagement';
 import { TableManagement } from '@/components/owner/TableManagement';
@@ -54,6 +55,14 @@ const OwnerDashboard = () => {
     setLoading(false);
   }, [user, navigate]);
 
+    const activeBranch = userBranches[0];
+
+    useEffect(() => {
+  if (activeBranch) {
+    seedBranchData(activeBranch.id);
+  }
+}, [activeBranch]);
+
   if (loading) {
     return (
       <OwnerDashboardLayout activeView={activeView} onViewChange={setActiveView}>
@@ -64,15 +73,34 @@ const OwnerDashboard = () => {
     );
   }
 
-  const activeBranch = userBranches[0];
+
+
+  // Handler for choosing another brand
+  const handleChooseBrand = () => {
+    localStorage.removeItem('selected_brand');
+    navigate('/brand-selection');
+  };
+
 
   return (
     <OwnerDashboardLayout activeView={activeView} onViewChange={setActiveView}>
-      {activeView === 'overview' && <OverviewDashboard userBranches={userBranches} />}
-      {activeView === 'menu' && activeBranch && <MenuManagement branchId={activeBranch.id} />}
-      {activeView === 'tables' && activeBranch && <TableManagement branchId={activeBranch.id} />}
-      {activeView === 'staff' && activeBranch && <StaffManagement branchId={activeBranch.id} />}
-      {activeView === 'reports' && activeBranch && <ReportsAnalytics branchId={activeBranch.id} />}
+      {activeView === 'overview' && (
+        <div className="space-y-6">
+          <div className="flex justify-end">
+            <button
+              className="px-4 py-2 rounded bg-primary text-white hover:bg-primary/90 transition"
+              onClick={handleChooseBrand}
+            >
+              Choose Another Brand
+            </button>
+          </div>
+          <OverviewDashboard userBranches={userBranches} />
+        </div>
+      )}
+      {activeView === 'menu' && activeBranch ? <MenuManagement branchId={activeBranch.id} /> : null}
+      {activeView === 'tables' && activeBranch ? <TableManagement branchId={activeBranch.id} /> : null}
+      {activeView === 'staff' && activeBranch ? <StaffManagement branchId={activeBranch.id} /> : null}
+      {activeView === 'reports' && activeBranch ? <ReportsAnalytics branchId={activeBranch.id} /> : null}
     </OwnerDashboardLayout>
   );
 };

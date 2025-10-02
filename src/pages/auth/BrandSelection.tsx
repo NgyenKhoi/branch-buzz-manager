@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Building2, ArrowRight, Plus } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { useAuthStore } from '@/store/authStore';
+import { seedBranchData } from '@/lib/mockDataInit';
 
 interface Brand {
   name: string;
@@ -69,7 +70,14 @@ const BrandSelection = () => {
     const brand = brands.find(b => b.name === brandName);
     if (!brand) return;
     localStorage.setItem('selected_brand', brandName);
-    // Always go to owner dashboard, not branch selection
+    // Seed all branches for this brand
+    brand.branches.forEach((branch: any) => {
+      seedBranchData(branch.id);
+    });
+    // Remove old mock_* keys to avoid confusion
+    localStorage.removeItem('mock_menu_items');
+    localStorage.removeItem('mock_tables');
+    localStorage.removeItem('mock_staff');
     toast({
       title: 'Brand Selected',
       description: `You've selected ${brandName}`,

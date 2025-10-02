@@ -23,7 +23,8 @@ interface MenuManagementProps {
 }
 
 export const MenuManagement = ({ branchId }: MenuManagementProps) => {
-  const items = useMenuStore((state) => state.getItemsByBranch(branchId));
+  const allItems = useMenuStore((state) => state.items);
+const items = allItems.filter(i => i.branchId === branchId);
   const deleteItem = useMenuStore((state) => state.deleteItem);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);

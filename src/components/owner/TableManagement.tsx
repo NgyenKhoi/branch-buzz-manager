@@ -23,7 +23,8 @@ interface TableManagementProps {
 }
 
 export const TableManagement = ({ branchId }: TableManagementProps) => {
-  const tables = useTableStore((state) => state.getTablesByBranch(branchId));
+  const allTables = useTableStore((state) => state.tables);
+const tables = allTables.filter(t => t.branchId === branchId);
   const deleteTable = useTableStore((state) => state.deleteTable);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isQRDialogOpen, setIsQRDialogOpen] = useState(false);

@@ -22,7 +22,8 @@ interface StaffManagementProps {
 }
 
 export const StaffManagement = ({ branchId }: StaffManagementProps) => {
-  const staff = useStaffStore((state) => state.getStaffByBranch(branchId));
+  const allStaff = useStaffStore((state) => state.staff);
+const staff = allStaff.filter(s => s.branchId === branchId);
   const deleteStaff = useStaffStore((state) => state.deleteStaff);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedStaff, setSelectedStaff] = useState<StaffMember | undefined>();

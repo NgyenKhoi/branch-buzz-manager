@@ -1,3 +1,47 @@
+// Seed branch data for menu, tables, staff if not present
+export function seedBranchData(branchId: string) {
+  // Seed menu items
+  const menuKey = 'menu_items';
+  let menu = JSON.parse(localStorage.getItem(menuKey) || '[]');
+  if (!menu.some((item: any) => item.branchId === branchId)) {
+    const branchMenu = mockMenuItems.map(item => ({
+      ...item,
+      branchId,
+      id: `${branchId}-menu-${item.id}`,
+      createdAt: new Date().toISOString(),
+    }));
+    menu = [...menu, ...branchMenu];
+    localStorage.setItem(menuKey, JSON.stringify(menu));
+  }
+
+  // Seed tables
+  const tableKey = 'tables';
+  let tables = JSON.parse(localStorage.getItem(tableKey) || '[]');
+  if (!tables.some((t: any) => t.branchId === branchId)) {
+    const branchTables = mockTables.map(table => ({
+      ...table,
+      branchId,
+      id: `${branchId}-table-${table.id}`,
+      createdAt: new Date().toISOString(),
+    }));
+    tables = [...tables, ...branchTables];
+    localStorage.setItem(tableKey, JSON.stringify(tables));
+  }
+
+  // Seed staff
+  const staffKey = 'staff_members';
+  let staff = JSON.parse(localStorage.getItem(staffKey) || '[]');
+  if (!staff.some((s: any) => s.branchId === branchId)) {
+    const branchStaff = mockStaff.map(staff => ({
+      ...staff,
+      branchId,
+      id: `${branchId}-staff-${staff.id}`,
+      createdAt: new Date().toISOString(),
+    }));
+    staff = [...staff, ...branchStaff];
+    localStorage.setItem(staffKey, JSON.stringify(staff));
+  }
+}
 // Initialize localStorage with mock data on app load
 import { 
   mockBranches, 
