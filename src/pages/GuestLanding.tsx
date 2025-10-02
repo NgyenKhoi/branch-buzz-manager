@@ -8,14 +8,18 @@ import { branchApi, menuApi } from '@/lib/api';
 import { Phone, Mail, MapPin, Clock, ShoppingCart, Minus, Plus, Loader2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { BookingDialog } from '@/components/BookingDialog';
+import { OrderDialog } from '@/components/OrderDialog';
 import { BookingItem } from '@/store/bookingStore';
+import { OrderItem } from '@/store/orderStore';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const GuestLanding = () => {
   const { shortCode } = useParams<{ shortCode: string }>();
   const [branch, setBranch] = useState<any>(null);
   const [menuItems, setMenuItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedItems, setSelectedItems] = useState<BookingItem[]>([]);
+  const [selectedItems, setSelectedItems] = useState<OrderItem[]>([]);
+  const [orderType, setOrderType] = useState<'now' | 'booking'>('now');
 
   useEffect(() => {
     const loadBranchData = async () => {
@@ -120,12 +124,28 @@ const GuestLanding = () => {
       {/* Floating Cart Button */}
       {totalItems > 0 && (
         <div className="fixed bottom-6 right-6 z-50">
-          <BookingDialog
-            branchId={branch.id}
-            branchName={branch.brandName || branch.name}
-            selectedItems={selectedItems}
-            onBookingComplete={() => setSelectedItems([])}
-          />
+          <Tabs value={orderType} onValueChange={(v) => setOrderType(v as 'now' | 'booking')} className="w-[400px]">
+            <TabsList className="grid w-full grid-cols-2 mb-2">
+              <TabsTrigger value="now">Order Now</TabsTrigger>
+              <TabsTrigger value="booking">Pre-Order</TabsTrigger>
+            </TabsList>
+            <TabsContent value="now">
+              <OrderDialog
+                branchId={branch.id}
+                branchName={branch.brandName || branch.name}
+                selectedItems={selectedItems}
+                onOrderComplete={() => setSelectedItems([])}
+              />
+            </TabsContent>
+            <TabsContent value="booking">
+              <BookingDialog
+                branchId={branch.id}
+                branchName={branch.brandName || branch.name}
+                selectedItems={selectedItems as BookingItem[]}
+                onBookingComplete={() => setSelectedItems([])}
+              />
+            </TabsContent>
+          </Tabs>
           <div className="absolute -top-2 -right-2 bg-primary text-primary-foreground rounded-full h-7 w-7 flex items-center justify-center text-sm font-bold shadow-lg">
             {totalItems}
           </div>

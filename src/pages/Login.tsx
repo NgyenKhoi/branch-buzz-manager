@@ -23,25 +23,47 @@ const Login = () => {
     try {
       const user = await login(email, password);
       
-      // Route based on user role and branches
+      // Smart routing based on user role
       if (user.role === 'owner') {
         const storedBranches = localStorage.getItem('mock_branches');
-        const branches = storedBranches ? JSON.parse(storedBranches) : [];
-        const userBranches = branches.filter((b: any) => b.ownerId === user.id);
-        
-        if (userBranches.length === 0) {
-          // No branches yet, go to create restaurant
-          navigate('/register/package');
-        } else if (userBranches.length === 1) {
-          // Single branch, go directly to dashboard
-          localStorage.setItem('selected_branch', userBranches[0].id);
-          navigate('/dashboard/owner');
+        if (storedBranches) {
+          const allBranches = JSON.parse(storedBranches);
+          const userBranches = allBranches.filter((b: any) => b.ownerId === user.id);
+          
+          if (userBranches.length === 0) {
+            navigate('/register/package');
+          } else {
+            // Get unique brands
+            const uniqueBrands = Array.from(
+              new Map(userBranches.map((b: any) => [b.brandName || 'Default Brand', b])).values()
+            );
+            
+            if (uniqueBrands.length === 1) {
+              // Only one brand
+              const firstBrand = uniqueBrands[0] as any;
+              const brandBranches = userBranches.filter(
+                (b: any) => (b.brandName || 'Default Brand') === (firstBrand.brandName || 'Default Brand')
+              );
+              
+              if (brandBranches.length === 1) {
+                // Only one branch, select automatically
+                localStorage.setItem('selected_brand', firstBrand.brandName || 'Default Brand');
+                localStorage.setItem('selected_branch', brandBranches[0].id);
+                navigate('/dashboard/owner');
+              } else {
+                // Multiple branches in brand, show branch selection
+                localStorage.setItem('selected_brand', firstBrand.brandName || 'Default Brand');
+                navigate('/branch-selection');
+              }
+            } else {
+              // Multiple brands, show brand selection first
+              navigate('/brand-selection');
+            }
+          }
         } else {
-          // Multiple branches, go to branch selection
-          navigate('/brand-selection');
+          navigate('/register/package');
         }
       } else if (user.role === 'customer') {
-        // SaaS customer management page
         navigate('/dashboard');
       } else if (user.role === 'branch_manager') {
         navigate('/dashboard/manager');

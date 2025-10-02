@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { mockStaff, mockTables, mockPromotions, mockBranches } from '@/data/mockData';
 import { BookingNotification } from '@/components/BookingNotification';
+import { OrderNotification } from '@/components/OrderNotification';
 
 const ManagerDashboard = () => {
   const activeBranch = mockBranches[0];
@@ -27,7 +28,10 @@ const ManagerDashboard = () => {
               {activeBranch.name} - Branch Operations
             </p>
           </div>
-          <BookingNotification branchId={activeBranch.id} />
+          <div className="flex items-center gap-3">
+            <OrderNotification branchId={activeBranch.id} />
+            <BookingNotification branchId={activeBranch.id} />
+          </div>
         </div>
 
         {/* Branch Stats */}
