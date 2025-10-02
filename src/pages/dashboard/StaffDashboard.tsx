@@ -20,7 +20,7 @@ const StaffDashboard = () => {
   const orders = useOrderStore((state) => state.getOrdersByBranch(branchId));
   const updateOrderStatus = useOrderStore((state) => state.updateOrderStatus);
 
-  const handleStatusUpdate = (orderId: string, newStatus: string) => {
+  const handleStatusUpdate = (orderId: string, newStatus: 'pending' | 'preparing' | 'ready' | 'completed' | 'cancelled') => {
     updateOrderStatus(orderId, newStatus);
     toast({
       title: 'Order Updated',

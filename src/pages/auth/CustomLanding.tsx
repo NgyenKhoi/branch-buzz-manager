@@ -300,14 +300,14 @@ const CustomLanding = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="address" className="text-sm font-medium">Full Address *</Label>
+                <Label htmlFor="branches.0.address" className="text-sm font-medium">Primary Branch Address *</Label>
                 <Input 
-                  {...register('address')} 
-                  id="address" 
+                  {...register('branches.0.address')} 
+                  id="branches.0.address" 
                   placeholder="123 Main Street, City, State, ZIP Code" 
                   className="h-11"
                 />
-                {errors.address && <p className="text-sm text-destructive mt-1.5">{errors.address.message}</p>}
+                {errors.branches?.[0]?.address && <p className="text-sm text-destructive mt-1.5">{errors.branches[0]?.address?.message}</p>}
               </div>
             </CardContent>
           </Card>
