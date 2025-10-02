@@ -21,8 +21,37 @@ const Login = () => {
     setIsLoading(true);
     
     try {
-      await login(email, password);
-      navigate('/dashboard');
+      const user = await login(email, password);
+      
+      // Route based on user role and branches
+      if (user.role === 'owner') {
+        const storedBranches = localStorage.getItem('mock_branches');
+        const branches = storedBranches ? JSON.parse(storedBranches) : [];
+        const userBranches = branches.filter((b: any) => b.ownerId === user.id);
+        
+        if (userBranches.length === 0) {
+          // No branches yet, go to create restaurant
+          navigate('/register/package');
+        } else if (userBranches.length === 1) {
+          // Single branch, go directly to dashboard
+          localStorage.setItem('selected_branch', userBranches[0].id);
+          navigate('/dashboard/owner');
+        } else {
+          // Multiple branches, go to branch selection
+          navigate('/brand-selection');
+        }
+      } else if (user.role === 'customer') {
+        // SaaS customer management page
+        navigate('/dashboard');
+      } else if (user.role === 'branch_manager') {
+        navigate('/dashboard/manager');
+      } else if (user.role === 'staff') {
+        navigate('/dashboard/staff');
+      } else if (user.role === 'admin') {
+        navigate('/dashboard/admin');
+      } else {
+        navigate('/dashboard');
+      }
     } catch (error) {
       // Error handling is done in the auth store
     } finally {

@@ -14,51 +14,100 @@ export interface Booking {
   guestName: string;
   guestEmail: string;
   guestPhone: string;
-  date: string;
-  time: string;
-  guests: number;
+  bookingDate: string;
+  bookingTime: string;
+  numberOfGuests: number;
   items: BookingItem[];
-  status: 'pending' | 'confirmed' | 'cancelled';
   createdAt: string;
+  status: 'pending' | 'approved' | 'confirmed' | 'declined';
+  paymentLink?: string;
 }
 
 interface BookingState {
   bookings: Booking[];
-  unreadCount: number;
   addBooking: (booking: Omit<Booking, 'id' | 'status' | 'createdAt'>) => void;
   markAsRead: (bookingId: string) => void;
-  getBookingsByBranch: (branchId: string) => Booking[];
+  approveBooking: (bookingId: string, paymentLink: string) => void;
+  confirmBooking: (bookingId: string) => void;
+  declineBooking: (bookingId: string) => void;
+  getBookingsByBranch: (branchId?: string) => Booking[];
+  getPendingBookings: (branchId?: string) => Booking[];
 }
 
-export const useBookingStore = create<BookingState>((set, get) => ({
-  bookings: [],
-  unreadCount: 0,
+const STORAGE_KEY = 'mock_bookings';
 
-  addBooking: (bookingData) => {
-    const newBooking: Booking = {
-      ...bookingData,
-      id: Date.now().toString(),
-      status: 'pending',
-      createdAt: new Date().toISOString(),
-    };
+const saveBookings = (bookings: Booking[]) => {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(bookings));
+};
 
-    set((state) => ({
-      bookings: [newBooking, ...state.bookings],
-      unreadCount: state.unreadCount + 1,
-    }));
+const loadBookings = (): Booking[] => {
+  const stored = localStorage.getItem(STORAGE_KEY);
+  return stored ? JSON.parse(stored) : [];
+};
 
-    // Persist to localStorage
-    const allBookings = [...get().bookings];
-    localStorage.setItem('mock_bookings', JSON.stringify(allBookings));
-  },
+export const useBookingStore = create<BookingState>((set) => ({
+  bookings: loadBookings(),
 
-  markAsRead: (bookingId) => {
-    set((state) => ({
-      unreadCount: Math.max(0, state.unreadCount - 1),
-    }));
-  },
+  addBooking: (bookingData) =>
+    set((state) => {
+      const newBooking: Booking = {
+        ...bookingData,
+        id: Date.now().toString(),
+        status: 'pending',
+        createdAt: new Date().toISOString(),
+      };
+      const updated = [newBooking, ...state.bookings];
+      saveBookings(updated);
+      return { bookings: updated };
+    }),
+
+  markAsRead: (bookingId) =>
+    set((state) => {
+      const updated = state.bookings.map((b) =>
+        b.id === bookingId && b.status === 'pending' ? { ...b, status: 'pending' as const } : b
+      );
+      saveBookings(updated);
+      return { bookings: updated };
+    }),
+
+  approveBooking: (bookingId, paymentLink) =>
+    set((state) => {
+      const updated = state.bookings.map((b) =>
+        b.id === bookingId ? { ...b, status: 'approved' as const, paymentLink } : b
+      );
+      saveBookings(updated);
+      return { bookings: updated };
+    }),
+
+  confirmBooking: (bookingId) =>
+    set((state) => {
+      const updated = state.bookings.map((b) =>
+        b.id === bookingId ? { ...b, status: 'confirmed' as const } : b
+      );
+      saveBookings(updated);
+      return { bookings: updated };
+    }),
+
+  declineBooking: (bookingId) =>
+    set((state) => {
+      const updated = state.bookings.map((b) =>
+        b.id === bookingId ? { ...b, status: 'declined' as const } : b
+      );
+      saveBookings(updated);
+      return { bookings: updated };
+    }),
 
   getBookingsByBranch: (branchId) => {
-    return get().bookings.filter((b) => b.branchId === branchId);
+    const { bookings } = useBookingStore.getState();
+    if (!branchId) return bookings;
+    return bookings.filter((b) => b.branchId === branchId);
+  },
+
+  getPendingBookings: (branchId) => {
+    const { bookings } = useBookingStore.getState();
+    const filtered = branchId 
+      ? bookings.filter((b) => b.branchId === branchId && b.status === 'pending')
+      : bookings.filter((b) => b.status === 'pending');
+    return filtered;
   },
 }));

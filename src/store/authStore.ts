@@ -17,7 +17,7 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   initialize: () => Promise<void>;
-  login: (email: string, password: string, restaurantId?: string) => Promise<void>;
+  login: (email: string, password: string, restaurantId?: string) => Promise<User>;
   loginStaff: (restaurantId: string, username: string, password: string) => Promise<void>;
   register: (email: string, password: string, name: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -73,6 +73,8 @@ export const useAuthStore = create<AuthState>((set) => ({
       
       set({ user, isAuthenticated: true, isLoading: false });
       toast({ title: 'Welcome back!', description: 'You have successfully logged in.' });
+      
+      return user;
     } else {
       set({ isLoading: false });
       toast({
