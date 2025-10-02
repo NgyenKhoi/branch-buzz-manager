@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { 
   TrendingUp, 
@@ -12,12 +12,20 @@ import {
   ArrowDown,
   QrCode,
   Copy,
-  ExternalLink
+  ExternalLink,
+  UtensilsCrossed,
+  Table,
+  UsersRound,
+  BarChart3
 } from 'lucide-react';
 import { branchApi, statsApi, menuApi } from '@/lib/api';
 import { QRCodeSVG } from 'qrcode.react';
 import { toast } from '@/hooks/use-toast';
 import { useAuthStore } from '@/store/authStore';
+import { MenuManagement } from '@/components/owner/MenuManagement';
+import { TableManagement } from '@/components/owner/TableManagement';
+import { StaffManagement } from '@/components/owner/StaffManagement';
+import { ReportsAnalytics } from '@/components/owner/ReportsAnalytics';
 
 const OwnerDashboard = () => {
   const { user } = useAuthStore();
@@ -85,6 +93,8 @@ const OwnerDashboard = () => {
     );
   }
 
+  const activeBranch = userBranches[0];
+
   return (
     <DashboardLayout>
       <div className="space-y-8">
@@ -94,6 +104,32 @@ const OwnerDashboard = () => {
             Overview of your selected brand
           </p>
         </div>
+
+        <Tabs defaultValue="overview" className="w-full">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="overview">
+              <BarChart3 className="h-4 w-4 mr-2" />
+              Overview
+            </TabsTrigger>
+            <TabsTrigger value="menu">
+              <UtensilsCrossed className="h-4 w-4 mr-2" />
+              Menu
+            </TabsTrigger>
+            <TabsTrigger value="tables">
+              <Table className="h-4 w-4 mr-2" />
+              Tables
+            </TabsTrigger>
+            <TabsTrigger value="staff">
+              <UsersRound className="h-4 w-4 mr-2" />
+              Staff
+            </TabsTrigger>
+            <TabsTrigger value="reports">
+              <TrendingUp className="h-4 w-4 mr-2" />
+              Reports
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="overview" className="space-y-8 mt-6">
 
         {/* Brand QR Code Section */}
         {userBranches && userBranches.length > 0 && (
@@ -247,6 +283,24 @@ const OwnerDashboard = () => {
             </div>
           </CardContent>
         </Card>
+          </TabsContent>
+
+          <TabsContent value="menu" className="mt-6">
+            {activeBranch && <MenuManagement branchId={activeBranch.id} />}
+          </TabsContent>
+
+          <TabsContent value="tables" className="mt-6">
+            {activeBranch && <TableManagement branchId={activeBranch.id} />}
+          </TabsContent>
+
+          <TabsContent value="staff" className="mt-6">
+            {activeBranch && <StaffManagement branchId={activeBranch.id} />}
+          </TabsContent>
+
+          <TabsContent value="reports" className="mt-6">
+            {activeBranch && <ReportsAnalytics branchId={activeBranch.id} />}
+          </TabsContent>
+        </Tabs>
       </div>
     </DashboardLayout>
   );
