@@ -1,8 +1,11 @@
 // Mock data for development and testing
 
+// Menu items with branchId linking
 export const mockMenuItems = [
+  // Downtown Branch (id: '1') menu
   {
     id: '1',
+    branchId: '1',
     name: 'Grilled Salmon',
     description: 'Fresh Atlantic salmon with herbs and lemon',
     price: 24.99,
@@ -13,6 +16,7 @@ export const mockMenuItems = [
   },
   {
     id: '2',
+    branchId: '1',
     name: 'Caesar Salad',
     description: 'Crispy romaine lettuce with parmesan and croutons',
     price: 12.99,
@@ -23,6 +27,7 @@ export const mockMenuItems = [
   },
   {
     id: '3',
+    branchId: '1',
     name: 'Beef Burger',
     description: 'Angus beef patty with cheese, lettuce, and tomato',
     price: 16.99,
@@ -33,16 +38,18 @@ export const mockMenuItems = [
   },
   {
     id: '4',
+    branchId: '1',
     name: 'Pasta Carbonara',
     description: 'Classic Italian pasta with bacon and parmesan',
     price: 18.99,
     category: 'Main Course',
     imageUrl: '/placeholder.svg',
     available: true,
-    bestSeller: true,
+    bestSeller: false,
   },
   {
     id: '5',
+    branchId: '1',
     name: 'Margherita Pizza',
     description: 'Fresh mozzarella, basil, and tomato sauce',
     price: 14.99,
@@ -53,6 +60,7 @@ export const mockMenuItems = [
   },
   {
     id: '6',
+    branchId: '1',
     name: 'Chocolate Lava Cake',
     description: 'Warm chocolate cake with vanilla ice cream',
     price: 8.99,
@@ -61,20 +69,109 @@ export const mockMenuItems = [
     available: true,
     bestSeller: false,
   },
+  {
+    id: '7',
+    branchId: '1',
+    name: 'Tiramisu',
+    description: 'Italian coffee-flavored dessert',
+    price: 9.99,
+    category: 'Dessert',
+    imageUrl: '/placeholder.svg',
+    available: true,
+    bestSeller: false,
+  },
+  // Westside Branch (id: '2') menu - slightly different
+  {
+    id: '11',
+    branchId: '2',
+    name: 'Grilled Salmon',
+    description: 'Fresh Atlantic salmon with herbs and lemon',
+    price: 24.99,
+    category: 'Main Course',
+    imageUrl: '/placeholder.svg',
+    available: true,
+    bestSeller: true,
+  },
+  {
+    id: '12',
+    branchId: '2',
+    name: 'Greek Salad',
+    description: 'Fresh vegetables with feta cheese and olives',
+    price: 11.99,
+    category: 'Salad',
+    imageUrl: '/placeholder.svg',
+    available: true,
+    bestSeller: false,
+  },
+  {
+    id: '13',
+    branchId: '2',
+    name: 'BBQ Ribs',
+    description: 'Slow-cooked pork ribs with BBQ sauce',
+    price: 22.99,
+    category: 'Main Course',
+    imageUrl: '/placeholder.svg',
+    available: true,
+    bestSeller: true,
+  },
+  {
+    id: '14',
+    branchId: '2',
+    name: 'Seafood Pasta',
+    description: 'Mixed seafood with garlic cream sauce',
+    price: 21.99,
+    category: 'Main Course',
+    imageUrl: '/placeholder.svg',
+    available: true,
+    bestSeller: true,
+  },
+  {
+    id: '15',
+    branchId: '2',
+    name: 'Pepperoni Pizza',
+    description: 'Classic pepperoni with mozzarella',
+    price: 15.99,
+    category: 'Main Course',
+    imageUrl: '/placeholder.svg',
+    available: true,
+    bestSeller: false,
+  },
+  {
+    id: '16',
+    branchId: '2',
+    name: 'Cheesecake',
+    description: 'New York style cheesecake with berry compote',
+    price: 8.99,
+    category: 'Dessert',
+    imageUrl: '/placeholder.svg',
+    available: true,
+    bestSeller: false,
+  },
 ];
 
+// Tables with branchId linking
 export const mockTables = [
-  { id: '1', number: 1, capacity: 2, status: 'available', qrCode: 'QR001' },
-  { id: '2', number: 2, capacity: 4, status: 'occupied', qrCode: 'QR002' },
-  { id: '3', number: 3, capacity: 4, status: 'available', qrCode: 'QR003' },
-  { id: '4', number: 4, capacity: 6, status: 'reserved', qrCode: 'QR004' },
-  { id: '5', number: 5, capacity: 2, status: 'available', qrCode: 'QR005' },
-  { id: '6', number: 6, capacity: 8, status: 'occupied', qrCode: 'QR006' },
+  // Downtown Branch tables
+  { id: '1', branchId: '1', number: 1, capacity: 2, status: 'available', qrCode: 'QR001' },
+  { id: '2', branchId: '1', number: 2, capacity: 4, status: 'occupied', qrCode: 'QR002' },
+  { id: '3', branchId: '1', number: 3, capacity: 4, status: 'available', qrCode: 'QR003' },
+  { id: '4', branchId: '1', number: 4, capacity: 6, status: 'reserved', qrCode: 'QR004' },
+  { id: '5', branchId: '1', number: 5, capacity: 2, status: 'available', qrCode: 'QR005' },
+  { id: '6', branchId: '1', number: 6, capacity: 8, status: 'occupied', qrCode: 'QR006' },
+  // Westside Branch tables
+  { id: '11', branchId: '2', number: 1, capacity: 4, status: 'available', qrCode: 'QR011' },
+  { id: '12', branchId: '2', number: 2, capacity: 4, status: 'available', qrCode: 'QR012' },
+  { id: '13', branchId: '2', number: 3, capacity: 6, status: 'occupied', qrCode: 'QR013' },
+  { id: '14', branchId: '2', number: 4, capacity: 2, status: 'available', qrCode: 'QR014' },
+  { id: '15', branchId: '2', number: 5, capacity: 8, status: 'available', qrCode: 'QR015' },
 ];
 
+// Orders with branchId linking
 export const mockOrders = [
+  // Downtown Branch orders
   {
     id: '1001',
+    branchId: '1',
     tableNumber: 3,
     items: [
       { name: 'Grilled Salmon', quantity: 2, price: 24.99 },
@@ -86,6 +183,7 @@ export const mockOrders = [
   },
   {
     id: '1002',
+    branchId: '1',
     tableNumber: 6,
     items: [
       { name: 'Beef Burger', quantity: 3, price: 16.99 },
@@ -97,6 +195,7 @@ export const mockOrders = [
   },
   {
     id: '1003',
+    branchId: '1',
     tableNumber: 9,
     items: [
       { name: 'Margherita Pizza', quantity: 1, price: 14.99 },
@@ -108,6 +207,7 @@ export const mockOrders = [
   },
   {
     id: '1004',
+    branchId: '1',
     tableNumber: 12,
     items: [
       { name: 'Grilled Salmon', quantity: 1, price: 24.99 },
@@ -116,12 +216,39 @@ export const mockOrders = [
     status: 'completed',
     createdAt: new Date(Date.now() - 7200000).toISOString(),
   },
+  // Westside Branch orders
+  {
+    id: '1011',
+    branchId: '2',
+    tableNumber: 3,
+    items: [
+      { name: 'BBQ Ribs', quantity: 2, price: 22.99 },
+      { name: 'Greek Salad', quantity: 1, price: 11.99 },
+    ],
+    total: 57.97,
+    status: 'pending',
+    createdAt: new Date(Date.now() - 180000).toISOString(),
+  },
+  {
+    id: '1012',
+    branchId: '2',
+    tableNumber: 1,
+    items: [
+      { name: 'Seafood Pasta', quantity: 2, price: 21.99 },
+    ],
+    total: 43.98,
+    status: 'preparing',
+    createdAt: new Date(Date.now() - 240000).toISOString(),
+  },
 ];
 
+// Staff with branchId linking
 export const mockStaff = [
+  // Downtown Branch staff
   {
     id: '1',
     name: 'John Smith',
+    username: 'john',
     email: 'john.smith@restaurant.com',
     role: 'staff',
     branchId: '1',
@@ -130,6 +257,7 @@ export const mockStaff = [
   {
     id: '2',
     name: 'Sarah Johnson',
+    username: 'sarah',
     email: 'sarah.johnson@restaurant.com',
     role: 'staff',
     branchId: '1',
@@ -138,9 +266,38 @@ export const mockStaff = [
   {
     id: '3',
     name: 'Michael Brown',
+    username: 'michael',
     email: 'michael.brown@restaurant.com',
     role: 'branch_manager',
     branchId: '1',
+    status: 'active',
+  },
+  // Westside Branch staff
+  {
+    id: '11',
+    name: 'Emma Wilson',
+    username: 'emma',
+    email: 'emma.wilson@restaurant.com',
+    role: 'staff',
+    branchId: '2',
+    status: 'active',
+  },
+  {
+    id: '12',
+    name: 'David Lee',
+    username: 'david',
+    email: 'david.lee@restaurant.com',
+    role: 'staff',
+    branchId: '2',
+    status: 'active',
+  },
+  {
+    id: '13',
+    name: 'Lisa Chen',
+    username: 'lisa',
+    email: 'lisa.chen@restaurant.com',
+    role: 'branch_manager',
+    branchId: '2',
     status: 'active',
   },
 ];
@@ -160,7 +317,7 @@ export const mockBranches = [
     description: 'Experience culinary excellence in the heart of downtown',
     logoUrl: null,
     bannerUrl: null,
-    ownerId: '1',
+    ownerId: '100', // owned by owner.multi
   },
   {
     id: '2',
@@ -170,13 +327,13 @@ export const mockBranches = [
     phone: '+1 234 567 8901',
     email: 'westside@restaurant.com',
     status: 'active',
-    managerId: null,
+    managerId: '13',
     brandName: 'The Gourmet Kitchen',
     tagline: 'Fresh flavors, west side style',
     description: 'Your neighborhood favorite for exceptional dining',
     logoUrl: null,
     bannerUrl: null,
-    ownerId: '1',
+    ownerId: '100', // owned by owner.multi
   },
 ];
 
@@ -349,18 +506,13 @@ export const mockUsers = [
     avatar: undefined,
   },
 
-   {
+  {
     id: '100',
-    email: 'owner.multibranch@example.com',
+    email: 'owner.multi@example.com',
     name: 'Multi Branch Owner',
     role: 'owner',
     avatar: undefined,
     password: 'owner123',
-    branches: [
-      { id: 'b1', name: 'Downtown Branch' },
-      { id: 'b2', name: 'Uptown Branch' },
-      { id: 'b3', name: 'Suburb Branch' }
-    ]
   }
 ];
 

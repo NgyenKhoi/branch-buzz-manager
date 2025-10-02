@@ -14,23 +14,15 @@ interface Brand {
 }
 
 // Helper to get brands for a multi-branch owner
-function getOwnerBrands(user: any, allBranches: any[], allBrands: any[]) {
-  // If user has a 'branches' array, use that to find brands
-  if (user.branches && Array.isArray(user.branches)) {
-    // Find all brands that have branches matching user's branches
-    const userBrandNames = new Set<string>();
-    user.branches.forEach((b: any) => {
-      // Try to match branch name to brand name
-      const branch = allBranches.find((br: any) => br.name === b.name);
-      if (branch && branch.brandName) {
-        userBrandNames.add(branch.brandName);
-      }
-    });
-    // Return all brands that match
-    return allBrands.filter((brand: any) => userBrandNames.has(brand.name));
-  }
-  // Fallback: group by brandName from branches owned by user
+function getOwnerBrands(user: any, allBranches: any[]) {
+  // Get branches owned by this user
   const userBranches = allBranches.filter((b: any) => b.ownerId === user.id);
+  
+  if (userBranches.length === 0) {
+    return [];
+  }
+
+  // Group branches by brandName
   const brandMap = new Map<string, any[]>();
   userBranches.forEach((branch: any) => {
     const brandName = branch.brandName || 'Unnamed Brand';
@@ -39,6 +31,8 @@ function getOwnerBrands(user: any, allBranches: any[], allBrands: any[]) {
     }
     brandMap.get(brandName)?.push(branch);
   });
+
+  // Convert to array of brand objects
   return Array.from(brandMap.entries()).map(([name, branches]) => ({
     name,
     branches,
@@ -58,14 +52,12 @@ const BrandSelection = () => {
       return;
     }
 
-    // Load all branches and brands
+    // Load all branches from localStorage
     const storedBranches = localStorage.getItem('mock_branches');
-    const storedBrands = localStorage.getItem('mock_brands');
     const allBranches = storedBranches ? JSON.parse(storedBranches) : [];
-    const allBrands = storedBrands ? JSON.parse(storedBrands) : [];
 
     // Use helper to get brands for this owner
-    const userBrands = getOwnerBrands(user, allBranches, allBrands);
+    const userBrands = getOwnerBrands(user, allBranches);
     if (userBrands.length === 0) {
       navigate('/register/package');
       return;

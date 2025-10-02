@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { branchApi } from '@/lib/api';
+import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 import { useAuthStore } from '@/store/authStore';
 import OwnerDashboardLayout from '@/components/layout/OwnerDashboardLayout';
@@ -11,39 +11,48 @@ import { ReportsAnalytics } from '@/components/owner/ReportsAnalytics';
 
 const OwnerDashboard = () => {
   const { user } = useAuthStore();
+  const navigate = useNavigate();
   const [userBranches, setUserBranches] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeView, setActiveView] = useState<string>('overview');
 
   useEffect(() => {
-    const loadBranches = async () => {
-      try {
-        setLoading(true);
-        const branchesResponse = await branchApi.getAll();
-        let userBranchesList = branchesResponse.data.filter((branch: any) => branch.ownerId === user?.id);
-        
-        // If user has a selected brand, filter branches by brand
-        let brandId = localStorage.getItem('selected_brand');
-        if (brandId) {
-          userBranchesList = userBranchesList.filter(
-            (branch: any) => branch.brandName === brandId || branch.brandName === JSON.parse(brandId)
-          );
-        }
-        
-        setUserBranches(userBranchesList);
-      } catch (error) {
-        console.error('Error loading branches:', error);
-        toast({
-          variant: 'destructive',
-          title: 'Error loading branches',
-          description: 'Could not load branch data.',
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadBranches();
-  }, [user]);
+    if (!user || user.role !== 'owner') {
+      navigate('/login');
+      return;
+    }
+
+    // Load selected brand and its branches
+    const selectedBrand = localStorage.getItem('selected_brand');
+    if (!selectedBrand) {
+      toast({
+        variant: 'destructive',
+        title: 'No brand selected',
+        description: 'Please select a brand first.',
+      });
+      navigate('/brand-selection');
+      return;
+    }
+
+    const allBranches = JSON.parse(localStorage.getItem('mock_branches') || '[]');
+    // Find branches that match the selected brand and belong to this owner
+    const brandBranches = allBranches.filter((b: any) => 
+      b.brandName === selectedBrand && b.ownerId === user.id
+    );
+
+    if (brandBranches.length === 0) {
+      toast({
+        variant: 'destructive',
+        title: 'No branches found',
+        description: 'This brand has no branches yet.',
+      });
+      navigate('/brand-selection');
+      return;
+    }
+
+    setUserBranches(brandBranches);
+    setLoading(false);
+  }, [user, navigate]);
 
   if (loading) {
     return (
